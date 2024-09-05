@@ -38,7 +38,8 @@
     "es2021": true
   },
   "rules": {
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "@typescript-eslint/no-require-imports": "off"
   },
   "overrides": [
     {

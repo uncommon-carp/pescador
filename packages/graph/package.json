@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "buildAndDeploy": "npm run build && sls deploy",
+    "build": "npm run build:codegen",
+    "generateSchema": "npx ts-node ./src/schema/generateSchema.ts",
+    "build:codegen": "graphql-codegen --config ./src/generator.ts && npm run generateSchema"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +16,7 @@
   "dependencies": {
     "@apollo/server": "^4.11.0",
     "@as-integrations/aws-lambda": "^3.1.0",
+    "@aws-sdk/client-lambda": "^3.645.0",
     "@graphql-tools/schema": "^10.0.6",
     "graphql": "^16.9.0"
   },

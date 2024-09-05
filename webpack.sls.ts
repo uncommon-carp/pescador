@@ -1,6 +1,8 @@
 import * as path from "path";
 
-import * as slsw from "serverless-webpack";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import slsw = require("serverless-webpack");
 import * as webpack from "webpack";
 
 const config: webpack.Configuration = {
