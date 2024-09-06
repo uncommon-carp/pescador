@@ -12,7 +12,9 @@
     "axios": "^1.7.7"
   },
   "devDependencies": {
-    "@types/axios": "^0.14.0"
+    "@types/axios": "^0.14.0",
+    "@pescador/graph": "1.0.0",
+    "@pescador/interfaces": "1.0.0"
   },
   "description": ""
 }
