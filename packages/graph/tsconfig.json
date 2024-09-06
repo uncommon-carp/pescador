@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "paths": {
+      "@types/*": ["node_modules/@types/*"]
+    },
+    "typeRoots": ["./node_modules/@types"]
+  }
+}
