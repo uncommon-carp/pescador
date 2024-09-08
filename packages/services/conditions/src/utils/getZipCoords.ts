@@ -8,6 +8,7 @@ export async function getZipCoords(postalCode: string) {
     url: "http://www.mapquestapi.com/geocoding/v1/address",
     params,
   });
+  console.log(JSON.stringify(response.data.results));
   if (response.data.info.statusCode === 400) {
     throw new Error("Invalid query for coordinates");
   }

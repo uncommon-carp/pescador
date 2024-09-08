@@ -3,9 +3,16 @@ import axios from "axios";
 import { getZipCoords } from "./utils";
 import { CurrentWeather } from "@pescador/graph";
 
-export async function getWeatherByZip(zip: string): Promise<CurrentWeather> {
+interface GetWeatherInput {
+  zip: string;
+}
+
+export async function getWeatherByZip(
+  input: GetWeatherInput,
+): Promise<CurrentWeather> {
   const apiKey = process.env.OPEN_WEATHER_API_KEY;
 
+  const { zip } = input;
   const result = await getZipCoords(zip);
   if (typeof result === "string") {
     return result;
