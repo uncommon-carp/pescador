@@ -8,15 +8,15 @@ const serverlessConfiguration: AWS = {
     runtime: "nodejs18.x", // Set the Node.js runtime version
     region: "us-east-1", // Set the AWS region
     stage: "dev",
+    environment: {
+      OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY, // Additional environment variable for this Lambda
+      MAPQUEST_API_KEY: process.env.MAPQUEST_API_KEY,
+    },
   },
 
   functions: {
     getWeatherByZip: {
       handler: "src/service.getWeatherByZip", // Path to your Lambda function handler
-      environment: {
-        OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY, // Additional environment variable for this Lambda
-        MAPQUEST_API_KEY: process.env.MAPQUEST_API_KEY,
-      },
     },
   },
 
