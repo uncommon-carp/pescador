@@ -10,6 +10,17 @@ const serverlessConfiguration: AWS = {
     httpApi: {
       cors: true,
     },
+    iam: {
+      role: {
+        statements: [
+          {
+            Effect: "Allow",
+            Action: "Lambda:InvokeFunction",
+            Resource: `arn:aws:lambda:us-east-1:${process.env.AWS_ACCOUNT_ID}:function:*`,
+          },
+        ],
+      },
+    },
   },
   custom: {
     webpack: {

@@ -1,12 +1,22 @@
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 
-export async function invokeServiceFunction(
-  name: string,
-  input: Record<string, unknown>,
-) {
+interface ServiceFunction<TInput, TOutput> {
+  serviceName: string;
+  functionName: string;
+  input: TInput;
+  output: TOutput;
+}
+
+export const invokeServiceFunction = async <
+  T extends ServiceFunction<unknown, unknown>,
+>(
+  serviceName: T["serviceName"],
+  functionName: T["functionName"],
+  input: T["input"],
+): Promise<T["output"]> => {
   const client = new LambdaClient({ region: "us-east-1" });
   const command = new InvokeCommand({
-    FunctionName: name,
+    FunctionName: `${serviceName}-dev-${functionName}`,
     InvocationType: "RequestResponse",
     Payload: new TextEncoder().encode(JSON.stringify(input)),
   });
@@ -15,4 +25,4 @@ export async function invokeServiceFunction(
     new TextDecoder("utf-8").decode(response.Payload),
   );
   return parsedResponse;
-}
+};
