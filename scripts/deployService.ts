@@ -81,7 +81,7 @@ const deploySingle = async (): Promise<void> => {
 
   if (serviceName === "graph") {
     try {
-      await runNpmScript("build", graphDir); // Adjust 'build' to the appropriate npm script
+      await runNpmScript("build", graphDir);
       await deployService(graphDir, "graph");
     } catch (error) {
       console.error("Error during graph build or deployment:", error);
