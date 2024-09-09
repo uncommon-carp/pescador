@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint 'packages/**/*.{js,ts,tsx}'",
-    "lint:fix": "eslint 'packages/**/*.{js,ts,tsx}' --fix"
+    "lint:fix": "eslint 'packages/**/*.{js,ts,tsx}' --fix",
+    "deploy:all": "npx ts-node scripts/deployAll.ts",
+    "deploy:service": "ts-node scripts/deployService.ts"
   },
   "keywords": [],
   "author": "",
