@@ -2,15 +2,12 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 
-// Define paths to services and graph directory
 const baseDir = path.join(__dirname, "../");
 const servicesDir = path.join(baseDir, "packages", "services");
 const graphDir = path.join(baseDir, "packages", "graph");
 
-// Get the service name from the command line arguments
 const serviceName = process.argv[2];
 
-// Function to run the npm command (like `npm run build`)
 const runNpmScript = (script: string, servicePath: string): Promise<void> => {
   console.log(`\nRunning npm script '${script}' for ${servicePath}...`);
 
@@ -35,7 +32,6 @@ const runNpmScript = (script: string, servicePath: string): Promise<void> => {
   });
 };
 
-// Function to deploy a specific service using `spawn`
 const deployService = (
   servicePath: string,
   serviceName: string,
@@ -61,7 +57,6 @@ const deployService = (
   });
 };
 
-// Helper function to find the service directory (case-insensitive match)
 const findServiceDirectory = (serviceName: string): string | null => {
   const services = fs.readdirSync(servicesDir);
 
@@ -78,7 +73,6 @@ const findServiceDirectory = (serviceName: string): string | null => {
   return null;
 };
 
-// Main function to deploy either `graph` or a specific service in `services`
 const deploySingle = async (): Promise<void> => {
   if (!serviceName) {
     console.error("Please provide a service name.");
@@ -86,7 +80,6 @@ const deploySingle = async (): Promise<void> => {
   }
 
   if (serviceName === "graph") {
-    // Run the build step for the graph service before deploying
     try {
       await runNpmScript("build", graphDir); // Adjust 'build' to the appropriate npm script
       await deployService(graphDir, "graph");
@@ -94,7 +87,6 @@ const deploySingle = async (): Promise<void> => {
       console.error("Error during graph build or deployment:", error);
     }
   } else {
-    // Deploy a specific service in the services directory
     const servicePath = findServiceDirectory(serviceName);
 
     if (servicePath) {
@@ -105,5 +97,4 @@ const deploySingle = async (): Promise<void> => {
   }
 };
 
-// Run the single deployment
 deploySingle();

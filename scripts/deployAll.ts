@@ -2,12 +2,10 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 
-// Define paths to services and graph directory
 const baseDir = path.join(__dirname, "../");
 const servicesDir = path.join(baseDir, "packages", "services");
 const graphDir = path.join(baseDir, "packages", "graph");
 
-// Get all directories in the services folder
 const getServices = (): string[] => {
   return fs.readdirSync(servicesDir).filter((dir) => {
     const dirPath = path.join(servicesDir, dir);
@@ -15,7 +13,6 @@ const getServices = (): string[] => {
   });
 };
 
-// Function to run the npm command (like `npm run build`) in a specific directory
 const runNpmScript = (script: string, servicePath: string): Promise<void> => {
   console.log(`\nRunning npm script '${script}' in ${servicePath}...`);
 
@@ -44,7 +41,6 @@ const runNpmScript = (script: string, servicePath: string): Promise<void> => {
   });
 };
 
-// Function to deploy a service or graph
 const deployService = (
   servicePath: string,
   serviceName: string,
@@ -70,7 +66,6 @@ const deployService = (
   });
 };
 
-// Deploy graph and all services
 const deployAll = async (): Promise<void> => {
   // Deploy the graph service first
   try {
@@ -82,10 +77,8 @@ const deployAll = async (): Promise<void> => {
     );
   }
 
-  // Get all services in the services directory
   const services = getServices();
 
-  // Deploy all services in the services directory
   for (const service of services) {
     const servicePath = path.join(servicesDir, service);
     try {
@@ -100,5 +93,4 @@ const deployAll = async (): Promise<void> => {
   console.log("\nAll services and graph deployed.");
 };
 
-// Run the deployment
 deployAll();
