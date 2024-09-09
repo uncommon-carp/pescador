@@ -10,7 +10,7 @@ export interface GetWeatherByZipFunction {
 export interface GetStationsByBoxFunction {
   serviceName: "service-conditions";
   functionName: "getStationsByBox";
-  input: { lat: number; lng: number };
+  input: { zip: string };
   output: BulkStation;
 }
 

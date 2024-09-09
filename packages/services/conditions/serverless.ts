@@ -16,7 +16,7 @@ const serverlessConfiguration: AWS = {
 
   functions: {
     getWeatherByZip: {
-      handler: "src/service.getWeatherByZip", // Path to your Lambda function handler
+      handler: "src/weather.getWeatherByZip", // Path to your Lambda function handler
     },
   },
 
