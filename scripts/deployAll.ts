@@ -67,9 +67,8 @@ const deployService = (
 };
 
 const deployAll = async (): Promise<void> => {
-  // Deploy the graph service first
   try {
-    await runNpmScript("build", graphDir); // Run the build step for the graph service
+    await runNpmScript("build", graphDir);
     await deployService(graphDir, "graph");
   } catch (error) {
     console.error(
