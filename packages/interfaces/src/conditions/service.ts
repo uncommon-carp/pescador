@@ -14,9 +14,9 @@ export interface GetStationsByBoxFunction {
   output: BulkStation;
 }
 
-export interface GetStationsById {
+export interface GetStationByIdFunction {
   serviceName: "service-conditions";
-  functionName: "getStationsById";
-  input: { ids: string[] };
+  functionName: "getStationById";
+  input: { id: string; range: number };
   output: BulkStation;
 }

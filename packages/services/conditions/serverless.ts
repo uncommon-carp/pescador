@@ -1,36 +1,42 @@
 import type { AWS } from "@serverless/typescript";
 
 const serverlessConfiguration: AWS = {
-  service: "service-conditions", // Service name
+  service: "service-conditions",
   frameworkVersion: "3",
   provider: {
     name: "aws",
-    runtime: "nodejs18.x", // Set the Node.js runtime version
-    region: "us-east-1", // Set the AWS region
+    runtime: "nodejs18.x",
+    region: "us-east-1",
     stage: "dev",
     environment: {
-      OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY, // Additional environment variable for this Lambda
+      OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY,
       MAPQUEST_API_KEY: process.env.MAPQUEST_API_KEY,
     },
   },
 
   functions: {
     getWeatherByZip: {
-      handler: "src/weather.getWeatherByZip", // Path to your Lambda function handler
+      handler: "src/weather.getWeatherByZip",
+    },
+    getStationsByBox: {
+      handler: "src/water.getStationsByBox",
+    },
+    getStationById: {
+      handler: "src/water.getStationById",
     },
   },
 
   package: {
-    individually: true, // Package this function individually to keep the size minimal
-    exclude: ["node_modules/aws-sdk/**"], // Exclude AWS SDK (available by default in Lambda)
+    individually: true,
+    exclude: ["node_modules/aws-sdk/**"],
   },
 
-  plugins: ["serverless-webpack"], // Optional: Use webpack to bundle the Lambda (if using)
+  plugins: ["serverless-webpack"],
 
   custom: {
     webpack: {
-      webpackConfig: "../../../webpack.sls.ts", // If using webpack, provide the config
-      includeModules: true, // Include necessary modules when bundling
+      webpackConfig: "../../../webpack.sls.ts",
+      includeModules: true,
     },
   },
 };
