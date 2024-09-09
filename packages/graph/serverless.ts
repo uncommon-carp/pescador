@@ -5,7 +5,7 @@ const serverlessConfiguration: AWS = {
   frameworkVersion: "3",
   provider: {
     name: "aws",
-    runtime: "nodejs16.x",
+    runtime: "nodejs18.x",
     region: "us-east-1",
     httpApi: {
       cors: true,
