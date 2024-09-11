@@ -29,7 +29,8 @@
   },
   "settings": {
     "react": {
-      "version": "detect"
+      "version": "detect",
+      "pragma": "React"
     }
   },
   "env": {
@@ -39,7 +40,8 @@
   },
   "rules": {
     "prettier/prettier": "error",
-    "@typescript-eslint/no-require-imports": "off"
+    "@typescript-eslint/no-require-imports": "off",
+    "react/react-in-jsx-scope": "off"
   },
   "overrides": [
     {
