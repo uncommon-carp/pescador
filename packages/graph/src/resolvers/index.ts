@@ -1,7 +1,16 @@
+import {
+  getStationByIdResolver,
+  getStationsByBoxResolver,
+  getWeatherByZipResolver,
+} from './conditions';
+
 export function getResolvers() {
   const resolvers = {
     Query: {
-      health: () => 'ok',
+      hello: () => 'world',
+      weather: getWeatherByZipResolver,
+      bulkStation: getStationsByBoxResolver,
+      station: getStationByIdResolver,
     },
   };
 
