@@ -1,0 +1,23 @@
+{
+  "name": "@pescador/graph",
+  "version": "1.0.0",
+  "author": "Cory Sorel",
+  "license": "ISC",
+  "scripts": {
+    "build": "npm run build:codegen",
+    "generateSchema": "npx ts-node ./src/schema/generateSchema.ts",
+    "build:codegen": "graphql-codegen --config ./src/generator.ts && npm run generateSchema"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.3",
+    "@graphql-codegen/typescript": "^4.1.2",
+    "@graphql-codegen/typescript-operations": "^4.4.0",
+    "@graphql-codegen/typescript-resolvers": "^4.4.1",
+    "@graphql-tools/schema": "^10.0.16"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.3",
+    "@as-integrations/aws-lambda": "^3.1.0",
+    "graphql": "^16.10.0"
+  }
+}

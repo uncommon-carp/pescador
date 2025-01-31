@@ -1,0 +1,46 @@
+# General
+node_modules/
+.DS_Store
+logs/
+*.log
+*.tmp
+*.swp
+.vscode/
+.idea/
+
+# TypeScript
+dist/
+build/
+*.tsbuildinfo
+
+# Next.js
+.next/
+out/
+
+# Serverless
+.serverless/
+.webpack/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Coverage
+coverage/
+
+# Lerna/npm workspaces
+lerna-debug.log
+
+# AWS Amplify
+amplify/.config/local-*
+amplify/backend/.temp/
+amplify/#current-cloud-backend/
+amplify/.team-provider-info.json
+
+# ESLint/Prettier
+.eslintcache
+.prettiercache
+
+# Type generation settings
+generator.ts
