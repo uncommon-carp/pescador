@@ -6,8 +6,8 @@
     "lint": "eslint 'packages/**/*.{js,ts,tsx}'",
     "lint:fix": "eslint 'packages/**/*.{js,ts,tsx}' --fix",
     "build:graph": "npm run build --workspace=@pescador/graph",
-    "deploy:all": "npx ts-node scripts/buildAndDeploy/deployAll.ts",
-    "deploy:service": "ts-node scripts/buildAndDeploy/deployService.ts"
+    "deploy:all": "npx ts-node scripts/deploy/deployAll.ts",
+    "deploy:service": "ts-node scripts/deploy/deployService.ts"
   },
   "author": "Cory Sorel",
   "license": "ISC",

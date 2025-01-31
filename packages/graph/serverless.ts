@@ -1,8 +1,8 @@
 import { Serverless } from 'serverless/aws';
 
 const serverlessConfiguration: Serverless = {
-  service: 'graph',
-  frameworkVersion: '3',
+  service: 'pescador-graph',
+  frameworkVersion: '4',
 
   provider: {
     name: 'aws',
