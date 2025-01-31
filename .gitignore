@@ -41,6 +41,3 @@ amplify/.team-provider-info.json
 # ESLint/Prettier
 .eslintcache
 .prettiercache
-
-# Type generation settings
-generator.ts
