@@ -44,8 +44,8 @@ export async function getWeatherByZip(
     };
     return weatherData;
   } catch (error: unknown) {
-    if (typeof error === 'object' && error !== null) {
-      throw new Error('Request error');
+    if (error instanceof Error) {
+      throw error;
     } else {
       throw new Error('Unexpected error');
     }
