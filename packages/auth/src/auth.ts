@@ -5,8 +5,11 @@ import {
   InitiateAuthCommand,
   GlobalSignOutCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
+import { v4 as uuid } from 'uuid';
 
 const client = new CognitoIdentityProviderClient({ region: 'us-east-1' });
+
+const ClientId = process.env.PESCADOR_COGNITO_APP_ID;
 
 interface AuthEvent {
   body: string;
@@ -19,10 +22,13 @@ export async function handleSignUp(event: AuthEvent) {
   try {
     const resp = await client.send(
       new SignUpCommand({
-        ClientId: process.env.COGNITO_CLIENT_ID,
-        Username: email,
+        ClientId,
+        Username: uuid(),
         Password: password,
-        UserAttributes: [{ Name: 'name', Value: name }],
+        UserAttributes: [
+          { Name: 'name', Value: name },
+          { Name: 'email', Value: email },
+        ],
       }),
     );
     console.log({ resp });
@@ -45,7 +51,7 @@ export async function handleConfirmSignUp(event: AuthEvent) {
 
   try {
     const command = new ConfirmSignUpCommand({
-      ClientId: process.env.COGNITO_CLIENT_ID,
+      ClientId,
       Username: email,
       ConfirmationCode: code,
     });
@@ -95,7 +101,7 @@ export async function handleSignIn(event: AuthEvent) {
   try {
     const command = new InitiateAuthCommand({
       AuthFlow: 'USER_PASSWORD_AUTH',
-      ClientId: process.env.COGNITO_CLIENT_ID,
+      ClientId,
       AuthParameters: {
         USERNAME: email,
         PASSWORD: password,
