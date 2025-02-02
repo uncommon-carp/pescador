@@ -1,8 +1,8 @@
 import type { Serverless } from 'serverless/aws';
 
 const serverlessConfiguration: Serverless = {
-  service: 'auth',
-  frameworkVersion: '3',
+  service: 'pescador-auth',
+  frameworkVersion: '4',
   provider: {
     name: 'aws',
     runtime: 'nodejs18.x',
