@@ -12,7 +12,7 @@ export const getWeatherByZipResolver = async (
   input: { zip: string },
 ): Promise<CurrentWeather> => {
   const resp = await invokeServiceFunction<GetWeatherByZipFunction>(
-    'service-conditions',
+    'pescador-conditions',
     'getWeatherByZip',
     input,
   );
@@ -24,7 +24,7 @@ export const getStationsByBoxResolver = async (
   input: { zip: string },
 ): Promise<BulkStation> => {
   const resp = await invokeServiceFunction<GetStationsByBoxFunction>(
-    'service-conditions',
+    'pescador-conditions',
     'getStationsByBox',
     input,
   );
@@ -36,7 +36,7 @@ export const getStationByIdResolver = async (
   input: { id: string; range: number },
 ) => {
   const resp = await invokeServiceFunction<GetStationByIdFunction>(
-    'service-conditions',
+    'pescador-conditions',
     'getStationById',
     input,
   );

@@ -8,11 +8,12 @@ const serverlessConfiguration: Serverless = {
     name: 'aws',
     runtime: 'nodejs18.x',
     region: 'us-east-1',
-    httpApi: {
-      cors: true,
-    },
     iam: {
       role: {},
+    },
+    environment: {
+      OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY,
+      MAPQUEST_API_KEY: process.env.MAPQUEST_API_KEY,
     },
   },
 
@@ -29,13 +30,13 @@ const serverlessConfiguration: Serverless = {
 
   functions: {
     getWeatherByZip: {
-      handler: 'src/weather.getWeatherByZip',
+      handler: 'src/weather/weather.getWeatherByZip',
     },
     getStationsByBox: {
-      handler: 'src/water.getStationsByBox',
+      handler: 'src/water/water.getStationsByBox',
     },
     getStationById: {
-      handler: 'src/water.getStationById',
+      handler: 'src/water/water.getStationById',
     },
   },
 };

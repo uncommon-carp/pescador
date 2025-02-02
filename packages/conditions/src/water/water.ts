@@ -4,7 +4,7 @@ import {
   getZipCoords,
   siteReducer,
   stationSort,
-} from './utils';
+} from '../utils';
 import {
   UsgsResponse,
   BulkStation,
@@ -66,7 +66,6 @@ export const getStationById = async (
     });
 
     return {
-      __typename: 'StationWithRange',
       name: resp.data.value.timeSeries[0].sourceInfo.siteName,
       usgsId: resp.data.value.timeSeries[0].sourceInfo.siteCode[0].value,
       lat: resp.data.value.timeSeries[0].sourceInfo.geoLocation.geogLocation

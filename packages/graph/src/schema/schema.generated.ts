@@ -60,7 +60,7 @@ type CurrentWeather {
 
 type WindData {
   speed: Float
-  direction: Float
+  direction: String
   gust: Float
 }
 

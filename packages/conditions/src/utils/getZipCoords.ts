@@ -1,12 +1,11 @@
 import axios from 'axios';
 
-export async function getZipCoords(postalCode: string) {
+export async function getZipCoords(location: string) {
   const key = process.env.MAPQUEST_API_KEY;
-  const params = { key, postalCode };
+  console.log({ location });
   const response = await axios({
     method: 'get',
-    url: 'http://www.mapquestapi.com/geocoding/v1/address',
-    params,
+    url: `http://www.mapquestapi.com/geocoding/v1/address?key=${key}&location=${location}`,
   });
   console.log(JSON.stringify(response.data.results));
   if (response.data.info.statusCode === 400) {

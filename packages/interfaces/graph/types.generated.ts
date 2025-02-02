@@ -96,7 +96,7 @@ export type User = {
 };
 
 export type WindData = {
-  direction?: Maybe<Scalars['Float']['output']>;
+  direction?: Maybe<Scalars['String']['output']>;
   gust?: Maybe<Scalars['Float']['output']>;
   speed?: Maybe<Scalars['Float']['output']>;
 };
@@ -287,7 +287,7 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type WindDataResolvers<ContextType = any, ParentType extends ResolversParentTypes['WindData'] = ResolversParentTypes['WindData']> = {
-  direction?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  direction?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gust?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   speed?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
