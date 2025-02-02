@@ -11,7 +11,7 @@ const serverlessConfiguration: Serverless = {
       cors: true,
     },
     environment: {
-      COGNITO_CLIENT_ID: process.env.COGNITO_CLIENT_ID,
+      PESCADOR_COGNITO_APP_ID: process.env.PESCADOR_COGNITO_APP_ID,
     },
     iam: {
       role: {

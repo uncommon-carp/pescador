@@ -2,5 +2,11 @@
   "name": "@pescador/auth",
   "version": "1.0.0",
   "author": "Cory Sorel",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@pescador/utils": "^1.0.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.738.0"
+  }
 }
