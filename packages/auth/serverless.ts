@@ -1,12 +1,15 @@
-import type { Serverless } from "serverless/aws";
+import type { Serverless } from 'serverless/aws';
 
 const serverlessConfiguration: Serverless = {
-  service: "pescador-auth",
-  frameworkVersion: "4",
+  service: 'pescador-auth',
+
+  frameworkVersion: '4',
+
   provider: {
-    name: "aws",
-    runtime: "nodejs18.x",
-    region: "us-east-1",
+    name: 'aws',
+    profile: 'corys',
+    runtime: 'nodejs18.x',
+    region: 'us-east-1',
     httpApi: {
       cors: true,
     },
@@ -17,8 +20,8 @@ const serverlessConfiguration: Serverless = {
       role: {
         statements: [
           {
-            Effect: "Allow",
-            Action: "events:PutEvents",
+            Effect: 'Allow',
+            Action: 'events:PutEvents',
             Resource: `arn:aws:events:us-east-1:${process.env.AWS_ACCOUNT_ID}:event-bus/default`,
           },
         ],
@@ -37,51 +40,51 @@ const serverlessConfiguration: Serverless = {
   },
   functions: {
     signIn: {
-      handler: "src/auth.handleSignIn",
+      handler: 'src/auth.handleSignIn',
       events: [
         {
           httpApi: {
-            path: "/sign-in",
-            method: "POST",
+            path: '/sign-in',
+            method: 'POST',
           },
         },
       ],
     },
     signOut: {
-      handler: "src/auth.handleSignOut",
+      handler: 'src/auth.handleSignOut',
       events: [
         {
           httpApi: {
-            path: "/sign-out",
-            method: "POST",
+            path: '/sign-out',
+            method: 'POST',
           },
         },
       ],
     },
     signUp: {
-      handler: "src/auth.handleSignUp",
+      handler: 'src/auth.handleSignUp',
       events: [
         {
           httpApi: {
-            path: "/sign-up",
-            method: "POST",
+            path: '/sign-up',
+            method: 'POST',
           },
         },
       ],
     },
     confirmSignUp: {
-      handler: "src/auth.handleConfirmSignUp",
+      handler: 'src/auth.handleConfirmSignUp',
       events: [
         {
           httpApi: {
-            path: "/verify",
-            method: "POST",
+            path: '/verify',
+            method: 'POST',
           },
         },
       ],
     },
     postConfirmation: {
-      handler: "src/auth.postConfirmation",
+      handler: 'src/auth.postConfirmation',
     },
   },
 };

@@ -6,6 +6,7 @@ const serverlessConfiguration: Serverless = {
 
   provider: {
     name: 'aws',
+    profile: 'corys',
     runtime: 'nodejs18.x',
     region: 'us-east-1',
     httpApi: {
