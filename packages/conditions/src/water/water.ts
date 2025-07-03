@@ -43,7 +43,8 @@ export const getStationsByBox = async (
     });
     return siteReducer(response.data.value.timeSeries);
   } catch (err) {
-    throw new Error(`${err.message}`);
+    if (err instanceof Error) throw new Error(`${err.message}`);
+    throw new Error('Internal Server Error');
   }
 };
 
