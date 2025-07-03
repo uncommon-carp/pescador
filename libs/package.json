@@ -1,0 +1,9 @@
+{
+  "name": "@pescador/libs",
+  "version": "1.0.0",
+  "author": "Cory Sorel",
+  "dependencies": {
+    "@aws-sdk/client-eventbridge": "^3.817.0",
+    "@aws-sdk/client-ses": "^3.817.0"
+  }
+}
