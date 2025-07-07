@@ -152,14 +152,16 @@ function HomePageContent() {
       { flowValue: string | null; gageValue: string | null }
     >();
 
-    flowData.forEach((item) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    flowData.forEach((item: any) => {
       if (!dataMap.has(item.timestamp)) {
         dataMap.set(item.timestamp, { flowValue: null, gageValue: null });
       }
       dataMap.get(item.timestamp)!.flowValue = item.value;
     });
 
-    gageData.forEach((item) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    gageData.forEach((item: any) => {
       if (!dataMap.has(item.timestamp)) {
         dataMap.set(item.timestamp, { flowValue: null, gageValue: null });
       }
