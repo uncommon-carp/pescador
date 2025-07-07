@@ -2,7 +2,9 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { gql, useLazyQuery, ApolloProvider } from '@apollo/client';
+import { SingleStation } from '@pescador/libs';
 import apolloClient from '../lib/apolloClient';
+import { convertMmHgToInHg } from '@/lib/mmhgToInHg';
 
 const GET_DATA_QUERY = gql`
   query GetStationAndWeather($zip: String!) {
@@ -30,19 +32,6 @@ const GET_DATA_QUERY = gql`
     }
   }
 `;
-
-interface Station {
-  usgsId: string;
-  name: string;
-  flowRate?: string;
-  gageHt?: string;
-}
-
-const convertMmHgToInHg = (mmHg: number): string => {
-  if (typeof mmHg !== 'number') return '';
-  const inHg = mmHg * 0.0393701;
-  return inHg.toFixed(2);
-};
 
 function HomePageContent() {
   const [zipcode, setZipcode] = useState<string>('');
@@ -164,7 +153,7 @@ function HomePageContent() {
                     Nearby Stations
                   </h2>
                   <ul className="mt-4 space-y-3">
-                    {allStations.map((station: Station) => (
+                    {allStations.map((station: SingleStation) => (
                       <li
                         key={`${station.name}-${station.usgsId}`}
                         className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"

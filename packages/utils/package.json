@@ -1,9 +1,0 @@
-{
-  "name": "@pescador/utils",
-  "version": "1.0.0",
-  "author": "Cory Sorel",
-  "license": "ISC",
-  "dependencies": {
-    "@aws-sdk/client-eventbridge": "^3.740.0"
-  }
-}

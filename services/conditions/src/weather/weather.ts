@@ -1,4 +1,4 @@
-import { OpenWeatherResponse, CurrentWeather } from '@pescador/interfaces';
+import { OpenWeatherResponse, CurrentWeather } from '@pescador/libs';
 import axios from 'axios';
 import { getClouds, getWindDirection, getZipCoords } from '../utils';
 

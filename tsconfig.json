@@ -9,6 +9,11 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["serverless.ts", "packages/**/*.ts", "packages/**/*.tsx"],
+  "include": [
+    "serverless.ts",
+    "services/**/*.ts",
+    "apps/**/*.tsx",
+    "libs/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }

@@ -5,11 +5,7 @@ import {
   siteReducer,
   stationSort,
 } from '../utils';
-import {
-  UsgsResponse,
-  BulkStation,
-  StationWithRange,
-} from '@pescador/interfaces';
+import { UsgsResponse, BulkStation, StationWithRange } from '@pescador/libs';
 
 interface GetStationsByBoxInput {
   zip: string;

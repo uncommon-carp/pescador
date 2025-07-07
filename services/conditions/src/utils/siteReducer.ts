@@ -2,7 +2,7 @@
 // after the user searches for all sites within a bounding box. It's aim is to normalize and simplify the data
 // the client receives.
 
-import { TimeSerial, BulkStation, SingleStation } from '@pescador/interfaces';
+import { TimeSerial, BulkStation, SingleStation } from '@pescador/libs';
 
 export function siteReducer(data: TimeSerial[]): BulkStation {
   const lakes: SingleStation[] = [];
@@ -37,5 +37,5 @@ export function siteReducer(data: TimeSerial[]): BulkStation {
     }
   });
 
-  return { __typename: 'BulkStation', streams, lakes };
+  return { streams, lakes };
 }

@@ -1,4 +1,4 @@
-import { TimeSerial, DataFrame, ReportedValues } from '@pescador/interfaces';
+import { TimeSerial, DataFrame, ReportedValues } from '@pescador/libs';
 // Functionality for sorting and paring down USGS site requests time series
 // The data received for each type of site is different dependent on whether it is
 // is a stream or lake.
@@ -6,7 +6,6 @@ import { TimeSerial, DataFrame, ReportedValues } from '@pescador/interfaces';
 function streamSort(data: TimeSerial[]) {
   // This is the data format we want on the client
   const sorted: ReportedValues = {
-    __typename: 'ReportedValues',
     gage: [],
     flow: [],
   };
@@ -18,7 +17,6 @@ function streamSort(data: TimeSerial[]) {
     obj.values[0].value.forEach((value, i) => {
       if (i === 0 || i % interval === 0) {
         const newObject: DataFrame = {
-          __typename: 'DataFrame',
           timestamp: value.dateTime,
           value: Number(value.value),
         };
@@ -36,7 +34,6 @@ function streamSort(data: TimeSerial[]) {
 
 function lakeSort(data: TimeSerial[]): ReportedValues {
   const sorted: ReportedValues = {
-    __typename: 'ReportedValues',
     gage: [],
   };
 
@@ -45,7 +42,6 @@ function lakeSort(data: TimeSerial[]): ReportedValues {
   data[0].values[0].value.forEach((value, i) => {
     if (i === 0 || i % interval === 0) {
       const newObject: DataFrame = {
-        __typename: 'DataFrame',
         timestamp: value.dateTime,
         value: Number(value.value),
       };

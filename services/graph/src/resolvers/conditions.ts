@@ -4,7 +4,7 @@ import {
   GetWeatherByZipFunction,
   BulkStation,
   CurrentWeather,
-} from '@pescador/interfaces';
+} from '@pescador/libs';
 import { invokeServiceFunction } from '../utils';
 
 export const getWeatherByZipResolver = async (
