@@ -2,10 +2,18 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { gql, useLazyQuery, ApolloProvider } from '@apollo/client';
-import { SingleStation } from '@pescador/libs';
+// This is a placeholder type. Replace with your actual type definition if available.
+interface SingleStation {
+  usgsId: string;
+  name: string;
+  flowRate?: string | null;
+  gageHt?: string | null;
+}
+// Assuming apolloClient and convertMmHgToInHg are correctly set up in these paths
 import apolloClient from '../lib/apolloClient';
 import { convertMmHgToInHg } from '@/lib/mmhgToInHg';
 
+// Existing Query for Bulk Stations and Weather
 const GET_DATA_QUERY = gql`
   query GetStationAndWeather($zip: String!) {
     bulkStation(zip: $zip) {
@@ -33,16 +41,56 @@ const GET_DATA_QUERY = gql`
   }
 `;
 
+// UPDATED Query for Single Station History (to match your backend)
+const GET_STATION_HISTORY_QUERY = gql`
+  query GetStationHistory($id: String!, $range: Int!) {
+    station(id: $id, range: $range) {
+      usgsId
+      name
+      values {
+        flow {
+          value
+          timestamp
+        }
+        gage {
+          value
+          timestamp
+        }
+      }
+    }
+  }
+`;
+
 function HomePageContent() {
   const [zipcode, setZipcode] = useState<string>('');
   const [submittedZip, setSubmittedZip] = useState<string | null>(null);
 
+  // State for managing the history pop-up visibility
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
+
+  // Bulk data query
   const [getData, { loading, error, data }] = useLazyQuery(GET_DATA_QUERY, {
     onCompleted: (queryData) => {
-      console.log('Query completed successfully:', queryData);
+      console.log('Bulk Query completed successfully:', queryData);
     },
     onError: (queryError) => {
-      console.error('An error occurred during the query:', queryError);
+      console.error('An error occurred during the bulk query:', queryError);
+    },
+  });
+
+  // Lazy query for single station history
+  const [
+    getStationHistory,
+    { loading: historyLoading, error: historyError, data: historyData },
+  ] = useLazyQuery(GET_STATION_HISTORY_QUERY, {
+    onCompleted: (queryData) => {
+      console.log('History Query completed successfully:', queryData);
+      console.log('History Data Values Structure:', queryData?.station?.values);
+      setIsHistoryModalOpen(true); // Open modal on successful fetch
+    },
+    onError: (queryError) => {
+      console.error('An error occurred during the history query:', queryError);
+      setIsHistoryModalOpen(true); // Still open modal to show error
     },
   });
 
@@ -63,11 +111,74 @@ function HomePageContent() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!/^\d{5}$/.test(zipcode)) {
+      // Potentially add visual feedback for invalid zip code
       return;
     }
-    setZipcode('');
     setSubmittedZip(zipcode);
+    setZipcode(''); // Clear input after submission
   };
+
+  // Function to handle station click and fetch history
+  const handleStationClick = (usgsId: string) => {
+    // Fetch last 7 days of data for the clicked station
+    getStationHistory({ variables: { id: usgsId, range: 7 } });
+  };
+
+  const closeHistoryModal = () => {
+    setIsHistoryModalOpen(false);
+  };
+
+  // *** FIXED *** Helper to format timestamp from an ISO string
+  const formatTimestamp = (timestamp: string) => {
+    // The new Date() constructor can directly parse ISO 8601 strings
+    const date = new Date(timestamp);
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
+    return date.toLocaleDateString();
+  };
+
+  // *** REFINED *** Memoized data processing for historical records
+  const historicalRecords = useMemo(() => {
+    if (!historyData?.station?.values) return [];
+
+    const flowData = historyData.station.values.flow || [];
+    const gageData = historyData.station.values.gage || [];
+
+    // Combine all data points into one map with the timestamp as the key
+    const dataMap = new Map<
+      string,
+      { flowValue: string | null; gageValue: string | null }
+    >();
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    flowData.forEach((item: any) => {
+      if (!dataMap.has(item.timestamp)) {
+        dataMap.set(item.timestamp, { flowValue: null, gageValue: null });
+      }
+      dataMap.get(item.timestamp)!.flowValue = item.value;
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    gageData.forEach((item: any) => {
+      if (!dataMap.has(item.timestamp)) {
+        dataMap.set(item.timestamp, { flowValue: null, gageValue: null });
+      }
+      dataMap.get(item.timestamp)!.gageValue = item.value;
+    });
+
+    // Convert the map to an array, sort by date, and return
+    return (
+      Array.from(dataMap.entries())
+        .map(([timestamp, values]) => ({ timestamp, ...values }))
+        // *** FIXED *** Sort by creating Date objects from the ISO strings
+        .sort(
+          (a, b) =>
+            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+        )
+    );
+  }, [historyData]);
 
   return (
     <main className="flex min-h-screen w-full flex-col items-center bg-slate-100 p-4 font-sans sm:p-8">
@@ -122,11 +233,11 @@ function HomePageContent() {
                   <h2 className="text-2xl font-bold text-slate-700 mb-4">
                     Current Weather
                   </h2>
-                  <div className="flex items-center justify-center gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center justify-center">
                     <p className="text-5xl font-bold text-slate-800">
                       {Math.round(data.weather.temp)}°F
                     </p>
-                    <div className="text-left">
+                    <div className="text-center sm:text-left">
                       <p className="text-lg font-semibold text-slate-700">
                         Wind
                       </p>
@@ -135,7 +246,7 @@ function HomePageContent() {
                         {data.weather.wind.direction}
                       </p>
                     </div>
-                    <div className="text-left">
+                    <div className="text-center sm:text-left">
                       <p className="text-lg font-semibold text-slate-700">
                         Pressure
                       </p>
@@ -156,7 +267,8 @@ function HomePageContent() {
                     {allStations.map((station: SingleStation) => (
                       <li
                         key={`${station.name}-${station.usgsId}`}
-                        className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+                        className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm cursor-pointer hover:shadow-md hover:border-cyan-400 transition-all duration-200"
+                        onClick={() => handleStationClick(station.usgsId)}
                       >
                         <div className="flex justify-between items-start">
                           <div>
@@ -168,7 +280,6 @@ function HomePageContent() {
                             </p>
                           </div>
                           <div className="text-right text-sm flex-shrink-0 ml-4">
-                            {/* Conditionally render Flow Rate if it exists */}
                             {station.flowRate && (
                               <p className="text-slate-700">
                                 Flow:{' '}
@@ -178,7 +289,6 @@ function HomePageContent() {
                                 cfs
                               </p>
                             )}
-                            {/* Conditionally render Gage Height if it exists */}
                             {station.gageHt && (
                               <p className="text-slate-700">
                                 Height:{' '}
@@ -198,6 +308,89 @@ function HomePageContent() {
             </div>
           )}
         </div>
+
+        {/* Station History Modal */}
+        {isHistoryModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+            <div className="relative w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
+              <button
+                onClick={closeHistoryModal}
+                className="absolute right-4 top-4 text-slate-500 hover:text-slate-800 text-2xl font-bold"
+                aria-label="Close"
+              >
+                &times;
+              </button>
+              {historyLoading ? (
+                <div className="flex justify-center items-center p-8">
+                  <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-300 border-t-cyan-600" />
+                </div>
+              ) : historyError ? (
+                <div className="text-center text-red-600 p-4">
+                  <h2 className="text-xl font-bold mb-2">
+                    Error Loading History
+                  </h2>
+                  <p>Could not load historical data for this station.</p>
+                  <p className="text-sm mt-2">{historyError.message}</p>
+                </div>
+              ) : historyData?.station ? (
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-800 mb-4">
+                    {historyData.station.name} History
+                  </h2>
+                  <p className="text-sm text-slate-600 mb-4">
+                    USGS ID: {historyData.station.usgsId}
+                  </p>
+                  {historicalRecords.length > 0 ? (
+                    <div className="max-h-80 overflow-y-auto pr-2">
+                      <table className="min-w-full divide-y divide-slate-200">
+                        <thead className="bg-slate-50 sticky top-0">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                              Date
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                              Flow (cfs)
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                              Height (ft)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {historicalRecords.map((record, index: number) => (
+                            <tr key={index}>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-800">
+                                {formatTimestamp(record.timestamp)}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-700">
+                                {record.flowValue !== null
+                                  ? record.flowValue
+                                  : 'N/A'}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-slate-700">
+                                {record.gageValue !== null
+                                  ? record.gageValue
+                                  : 'N/A'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-center text-slate-600 p-4">
+                      No historical data available for this station.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center text-slate-600 p-4">
+                  Select a station to view its history.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
