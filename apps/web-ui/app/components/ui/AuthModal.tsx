@@ -134,11 +134,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-<<<<<<< HEAD
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700"
-=======
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#496e6e]"
->>>>>>> origin/main
                 />
               </div>
 
@@ -152,11 +148,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-<<<<<<< HEAD
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700"
-=======
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#496e6e]"
->>>>>>> origin/main
                 style={{ color: '#000000' }}
                 />
               </div>
