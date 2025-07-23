@@ -6,10 +6,10 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
-  AddFavoriteStationInput,
-  RemoveFavoriteStationInput,
+  ServiceAddFavoriteStationInput,
+  ServiceRemoveFavoriteStationInput,
   GetFavoriteStationsInput,
-  StationOperationResult,
+  ServiceStationOperationResult,
   GetFavoriteStationsResult,
   InternalServerError,
   ValidationError,
@@ -20,7 +20,7 @@ const tableName = process.env.DYNAMODB_TABLE;
 
 export async function addFavoriteStation(event: { body: string }) {
   try {
-    const input: AddFavoriteStationInput = JSON.parse(event.body);
+    const input: ServiceAddFavoriteStationInput = JSON.parse(event.body);
     
     if (!input.userSub || !input.stationId || !input.stationName) {
       throw new ValidationError('userSub, stationId, and stationName are required');
@@ -43,7 +43,7 @@ export async function addFavoriteStation(event: { body: string }) {
 
     await client.send(command);
 
-    const result: StationOperationResult = {
+    const result: ServiceStationOperationResult = {
       success: true,
       message: 'Station added to favorites successfully',
     };
@@ -55,7 +55,7 @@ export async function addFavoriteStation(event: { body: string }) {
     }
     
     if (error instanceof Error && error.name === 'ConditionalCheckFailedException') {
-      const result: StationOperationResult = {
+      const result: ServiceStationOperationResult = {
         success: false,
         message: 'Station is already in favorites',
       };
@@ -71,7 +71,7 @@ export async function addFavoriteStation(event: { body: string }) {
 
 export async function removeFavoriteStation(event: { body: string }) {
   try {
-    const input: RemoveFavoriteStationInput = JSON.parse(event.body);
+    const input: ServiceRemoveFavoriteStationInput = JSON.parse(event.body);
     
     if (!input.userSub || !input.stationId) {
       throw new ValidationError('userSub and stationId are required');
@@ -88,7 +88,7 @@ export async function removeFavoriteStation(event: { body: string }) {
 
     await client.send(command);
 
-    const result: StationOperationResult = {
+    const result: ServiceStationOperationResult = {
       success: true,
       message: 'Station removed from favorites successfully',
     };
@@ -100,7 +100,7 @@ export async function removeFavoriteStation(event: { body: string }) {
     }
     
     if (error instanceof Error && error.name === 'ConditionalCheckFailedException') {
-      const result: StationOperationResult = {
+      const result: ServiceStationOperationResult = {
         success: false,
         message: 'Station was not in favorites',
       };
@@ -132,7 +132,7 @@ export async function getFavoriteStations(event: { body: string }) {
 
     const response = await client.send(command);
     
-    const stations = (response.Items || []).map((item) => {
+    const stations = (response.Items || []).map((item: any) => {
       const unmarshalled = unmarshall(item);
       return {
         stationId: unmarshalled.stationId,

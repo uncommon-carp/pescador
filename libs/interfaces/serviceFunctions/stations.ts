@@ -1,4 +1,4 @@
-export interface FavoriteStation {
+export interface ServiceFavoriteStation {
   stationId: string;
   stationName: string;
   lat?: number | null;
@@ -6,7 +6,7 @@ export interface FavoriteStation {
   dateAdded: string;
 }
 
-export interface AddFavoriteStationInput {
+export interface ServiceAddFavoriteStationInput {
   userSub: string;
   stationId: string;
   stationName: string;
@@ -14,7 +14,7 @@ export interface AddFavoriteStationInput {
   lon?: number | null;
 }
 
-export interface RemoveFavoriteStationInput {
+export interface ServiceRemoveFavoriteStationInput {
   userSub: string;
   stationId: string;
 }
@@ -23,27 +23,27 @@ export interface GetFavoriteStationsInput {
   userSub: string;
 }
 
-export interface StationOperationResult {
+export interface ServiceStationOperationResult {
   success: boolean;
   message?: string;
 }
 
 export interface GetFavoriteStationsResult {
-  stations: FavoriteStation[];
+  stations: ServiceFavoriteStation[];
 }
 
 export interface AddFavoriteStationFunction {
   serviceName: 'pescador-stations';
   functionName: 'addFavoriteStation';
-  input: AddFavoriteStationInput;
-  output: StationOperationResult;
+  input: ServiceAddFavoriteStationInput;
+  output: ServiceStationOperationResult;
 }
 
 export interface RemoveFavoriteStationFunction {
   serviceName: 'pescador-stations';
   functionName: 'removeFavoriteStation';
-  input: RemoveFavoriteStationInput;
-  output: StationOperationResult;
+  input: ServiceRemoveFavoriteStationInput;
+  output: ServiceStationOperationResult;
 }
 
 export interface GetFavoriteStationsFunction {
