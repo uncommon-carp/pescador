@@ -6,7 +6,6 @@ import {
   GlobalSignOutCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 import { PostConfirmationTriggerEvent } from 'aws-lambda';
-import { v4 as uuid, v4 as traceId } from 'uuid';
 import {
   AuthenticationError,
   ConflictError,
@@ -33,12 +32,11 @@ interface AuthEvent {
  */
 export async function handleSignUp(event: AuthEvent) {
   const { email, password, name } = JSON.parse(event.body);
-  const username = uuid();
 
   try {
     const command = new SignUpCommand({
       ClientId,
-      Username: username,
+      Username: email,
       Password: password,
       UserAttributes: [
         { Name: 'name', Value: name },
@@ -59,7 +57,10 @@ export async function handleSignUp(event: AuthEvent) {
         throw new ValidationError(error.message); // Use Cognito's specific message
       }
     }
-    throw new InternalServerError(traceId(), error as Error);
+    throw new InternalServerError(
+      '08b64313-4b7e-4357-b265-bd48fd19e9a2',
+      error as Error,
+    );
   }
 }
 
@@ -92,7 +93,10 @@ export async function handleConfirmSignUp(event: AuthEvent) {
         throw new NotFoundError('This user does not exist.');
       }
     }
-    throw new InternalServerError(traceId(), error as Error);
+    throw new InternalServerError(
+      '6adc29ee-5778-4b34-a255-bb8753383f76',
+      error as Error,
+    );
   }
 }
 
@@ -135,7 +139,10 @@ export async function handleSignIn(event: AuthEvent) {
         throw new NotFoundError('This user does not exist.');
       }
     }
-    throw new InternalServerError(traceId(), error as Error);
+    throw new InternalServerError(
+      '1bbc9552-0b38-4ff0-baf0-bfb3888d8e18',
+      error as Error,
+    );
   }
 }
 
@@ -158,7 +165,10 @@ export async function handleSignOut(event: AuthEvent) {
         'The access token is invalid or has been revoked.',
       );
     }
-    throw new InternalServerError(traceId(), error as Error);
+    throw new InternalServerError(
+      'd5894bd1-f476-409e-844b-62aa0aa2da74',
+      error as Error,
+    );
   }
 }
 
@@ -186,4 +196,55 @@ export async function postConfirmation(event: PostConfirmationTriggerEvent) {
 
   // Cognito requires you to return the event object
   return event;
+}
+
+export async function handleRefreshToken(event: AuthEvent) {
+  const { refreshToken } = JSON.parse(event.body);
+
+  if (!refreshToken) {
+    throw new ValidationError('RefreshToken must be provided.');
+  }
+
+  try {
+    const command = new InitiateAuthCommand({
+      AuthFlow: 'REFRESH_TOKEN_AUTH',
+      ClientId,
+      AuthParameters: {
+        REFRESH_TOKEN: refreshToken,
+      },
+    });
+
+    const response = await client.send(command);
+
+    if (response.AuthenticationResult) {
+      return {
+        idToken: response.AuthenticationResult.IdToken,
+        accessToken: response.AuthenticationResult.AccessToken,
+        // Note: Cognito typically doesn't return a new refresh token unless it's close to expiring
+        // The existing refresh token remains valid
+        ...(response.AuthenticationResult.RefreshToken && {
+          refreshToken: response.AuthenticationResult.RefreshToken,
+        }),
+      };
+    }
+
+    throw new AuthenticationError(
+      'Token refresh failed for an unknown reason.',
+    );
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.name === 'NotAuthorizedException') {
+        throw new AuthenticationError(
+          'The refresh token is invalid or has expired.',
+        );
+      }
+      if (error.name === 'UserNotFoundException') {
+        throw new NotFoundError('This user does not exist.');
+      }
+    }
+    throw new InternalServerError(
+      'a7f8c9d2-3e4f-5a6b-7c8d-9e0f1a2b3c4d',
+      error as Error,
+    );
+  }
 }

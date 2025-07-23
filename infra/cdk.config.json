@@ -1,0 +1,37 @@
+{
+  "environments": {
+    "dev": {
+      "account": "{{ CDK_DEFAULT_ACCOUNT }}",
+      "region": "us-east-1",
+      "stage": "dev"
+    },
+    "staging": {
+      "account": "{{ CDK_DEFAULT_ACCOUNT }}",
+      "region": "us-east-1",
+      "stage": "staging"
+    },
+    "prod": {
+      "account": "{{ CDK_DEFAULT_ACCOUNT }}",
+      "region": "us-east-1",
+      "stage": "prod"
+    }
+  },
+  "defaults": {
+    "region": "us-east-1",
+    "stage": "dev"
+  },
+  "features": {
+    "auth": {
+      "enabled": true,
+      "cognito": {
+        "passwordPolicy": {
+          "minLength": 8,
+          "requireLowercase": true,
+          "requireDigits": true,
+          "requireSymbols": false,
+          "requireUppercase": true
+        }
+      }
+    }
+  }
+}

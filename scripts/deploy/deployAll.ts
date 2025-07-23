@@ -1,10 +1,10 @@
-import fs from "fs";
-import path from "path";
-import { spawn } from "child_process";
+import fs from 'fs';
+import path from 'path';
+import { spawn } from 'child_process';
 
-const servicesDir = path.resolve(__dirname, "../../packages");
-const skipServices = ["utils", "interfaces"];
-const specialBuildServices = ["graph"];
+const servicesDir = path.resolve(__dirname, '../../services');
+const skipServices = ['utils', 'interfaces'];
+const specialBuildServices = ['graph'];
 
 function runCommand(
   command: string,
@@ -12,17 +12,17 @@ function runCommand(
   options: { cwd: string },
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    const process = spawn(command, args, { stdio: "inherit", ...options });
+    const process = spawn(command, args, { stdio: 'inherit', ...options });
 
-    process.on("close", (code) => {
+    process.on('close', (code) => {
       if (code !== 0) {
-        reject(new Error(`Command failed: ${command} ${args.join(" ")}`));
+        reject(new Error(`Command failed: ${command} ${args.join(' ')}`));
       } else {
         resolve();
       }
     });
 
-    process.on("error", (err) => {
+    process.on('error', (err) => {
       reject(new Error(`Failed to start process: ${err.message}`));
     });
   });
@@ -37,8 +37,8 @@ async function deployService(service: string): Promise<void> {
   }
 
   const hasServerlessConfig =
-    fs.existsSync(path.join(servicePath, "serverless.yml")) ||
-    fs.existsSync(path.join(servicePath, "serverless.ts"));
+    fs.existsSync(path.join(servicePath, 'serverless.yml')) ||
+    fs.existsSync(path.join(servicePath, 'serverless.ts'));
 
   if (!hasServerlessConfig) {
     console.log(
@@ -51,10 +51,10 @@ async function deployService(service: string): Promise<void> {
 
   if (specialBuildServices.includes(service)) {
     console.log(`Building ${service} before deployment...`);
-    await runCommand("npm", ["run", "build"], { cwd: servicePath });
+    await runCommand('npm', ['run', 'build'], { cwd: servicePath });
   }
 
-  await runCommand("sls", ["deploy"], { cwd: servicePath });
+  await runCommand('sls', ['deploy'], { cwd: servicePath });
 }
 
 async function deployAllServices(): Promise<void> {
@@ -68,7 +68,7 @@ async function deployAllServices(): Promise<void> {
 
   await Promise.all(deploymentPromises);
 
-  console.log("All services deployment finished!");
+  console.log('All services deployment finished!');
 }
 
 deployAllServices().catch((err) => {
