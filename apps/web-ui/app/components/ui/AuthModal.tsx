@@ -117,7 +117,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#496e6e]"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700"
               />
             </div>
           )}
@@ -134,7 +134,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#496e6e]"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700"
                 />
               </div>
 
@@ -148,7 +148,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#496e6e]"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700"
                 style={{ color: '#000000' }}
                 />
               </div>
@@ -167,7 +167,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 onChange={handleInputChange}
                 required
                 placeholder="Enter the code sent to your email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#496e6e]"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700"
                 style={{ color: '#000000' }}
               />
             </div>
@@ -176,7 +176,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#496e6e] text-white py-2 px-4 rounded-md hover:bg-[#3d5a5a] focus:outline-none focus:ring-2 focus:ring-[#496e6e] disabled:opacity-50"
+            className="w-full bg-cyan-700 text-white py-2 px-4 rounded-md hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-cyan-700 disabled:opacity-50"
           >
             {loading ? (
               'Loading...'
@@ -200,7 +200,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 onClick={() =>
                   switchMode(mode === 'signin' ? 'signup' : 'signin')
                 }
-                className="text-[#496e6e] hover:underline font-medium"
+                className="text-cyan-700 hover:underline font-medium"
               >
                 {mode === 'signin' ? 'Sign up' : 'Sign in'}
               </button>
