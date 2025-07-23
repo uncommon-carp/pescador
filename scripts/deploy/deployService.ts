@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 
-const servicesDir = path.resolve(__dirname, '../../packages');
+const servicesDir = path.resolve(__dirname, '../../services');
 const skipServices = ['utils', 'ui', 'interfaces'];
 const specialBuildServices = ['graph'];
 
