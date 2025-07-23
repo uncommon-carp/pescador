@@ -33,7 +33,7 @@ export function Header() {
           </button>
 
           <ul
-            className={`text-white ${menuOpen ? 'flex flex-col items-center absolute top-16 right-4 bg-cyan-700 p-4 rounded shadow-lg space-y-2 md:relative md:top-0 md:right-0 md:bg-transparent md:p-0 md:shadow-none md:flex-row md:items-start md:space-y-0 md:space-x-6' : 'hidden'} md:flex`}
+            className={`text-white ${menuOpen ? 'flex flex-col items-center absolute top-16 right-4 bg-cyan-700 p-4 rounded shadow-lg space-y-2 md:relative md:top-0 md:right-0 md:bg-transparent md:p-0 md:shadow-none md:flex-row md:items-start md:space-y-0' : 'hidden'} md:flex md:space-x-6`}
           >
             <li>
               <a
