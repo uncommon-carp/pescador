@@ -3,6 +3,11 @@ import {
   getStationsByBoxResolver,
   getWeatherByZipResolver,
 } from './conditions';
+import {
+  addFavoriteStationResolver,
+  removeFavoriteStationResolver,
+  getFavoriteStationsResolver,
+} from './stations';
 
 export function getResolvers() {
   const resolvers = {
@@ -11,6 +16,11 @@ export function getResolvers() {
       weather: getWeatherByZipResolver,
       bulkStation: getStationsByBoxResolver,
       station: getStationByIdResolver,
+      favoriteStations: getFavoriteStationsResolver,
+    },
+    Mutation: {
+      addFavoriteStation: addFavoriteStationResolver,
+      removeFavoriteStation: removeFavoriteStationResolver,
     },
   };
 
