@@ -17,6 +17,14 @@ export type Scalars = {
   DateTime: { input: string; output: Date; }
 };
 
+export type AddFavoriteStationInput = {
+  lat?: InputMaybe<Scalars['Float']['input']>;
+  lon?: InputMaybe<Scalars['Float']['input']>;
+  stationId: Scalars['String']['input'];
+  stationName: Scalars['String']['input'];
+  userSub: Scalars['String']['input'];
+};
+
 export type BulkStation = {
   lakes?: Maybe<Array<Maybe<SingleStation>>>;
   streams?: Maybe<Array<Maybe<SingleStation>>>;
@@ -35,8 +43,32 @@ export type DataFrame = {
   value?: Maybe<Scalars['Float']['output']>;
 };
 
+export type FavoriteStation = {
+  dateAdded: Scalars['String']['output'];
+  lat?: Maybe<Scalars['Float']['output']>;
+  lon?: Maybe<Scalars['Float']['output']>;
+  stationId: Scalars['String']['output'];
+  stationName: Scalars['String']['output'];
+};
+
+export type Mutation = {
+  addFavoriteStation: StationOperationResult;
+  removeFavoriteStation: StationOperationResult;
+};
+
+
+export type MutationAddFavoriteStationArgs = {
+  input: AddFavoriteStationInput;
+};
+
+
+export type MutationRemoveFavoriteStationArgs = {
+  input: RemoveFavoriteStationInput;
+};
+
 export type Query = {
   bulkStation?: Maybe<BulkStation>;
+  favoriteStations: Array<FavoriteStation>;
   hello?: Maybe<Scalars['String']['output']>;
   station?: Maybe<StationWithRange>;
   user?: Maybe<User>;
@@ -49,6 +81,11 @@ export type QueryBulkStationArgs = {
 };
 
 
+export type QueryFavoriteStationsArgs = {
+  userSub: Scalars['String']['input'];
+};
+
+
 export type QueryStationArgs = {
   id: Scalars['String']['input'];
   range: Scalars['Int']['input'];
@@ -57,6 +94,11 @@ export type QueryStationArgs = {
 
 export type QueryWeatherArgs = {
   zip: Scalars['String']['input'];
+};
+
+export type RemoveFavoriteStationInput = {
+  stationId: Scalars['String']['input'];
+  userSub: Scalars['String']['input'];
 };
 
 export type ReportedValues = {
@@ -80,6 +122,11 @@ export type Station = {
   lon?: Maybe<Scalars['Float']['output']>;
   name: Scalars['String']['output'];
   usgsId: Scalars['String']['output'];
+};
+
+export type StationOperationResult = {
+  message?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type StationWithRange = Station & {
@@ -176,17 +223,22 @@ export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = 
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
+  AddFavoriteStationInput: AddFavoriteStationInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   BulkStation: ResolverTypeWrapper<BulkStation>;
   CurrentWeather: ResolverTypeWrapper<CurrentWeather>;
   DataFrame: ResolverTypeWrapper<DataFrame>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
+  FavoriteStation: ResolverTypeWrapper<FavoriteStation>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
+  RemoveFavoriteStationInput: RemoveFavoriteStationInput;
   ReportedValues: ResolverTypeWrapper<ReportedValues>;
   SingleStation: ResolverTypeWrapper<SingleStation>;
   Station: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Station']>;
+  StationOperationResult: ResolverTypeWrapper<StationOperationResult>;
   StationWithRange: ResolverTypeWrapper<StationWithRange>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   User: ResolverTypeWrapper<User>;
@@ -195,17 +247,22 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
+  AddFavoriteStationInput: AddFavoriteStationInput;
   Boolean: Scalars['Boolean']['output'];
   BulkStation: BulkStation;
   CurrentWeather: CurrentWeather;
   DataFrame: DataFrame;
   DateTime: Scalars['DateTime']['output'];
+  FavoriteStation: FavoriteStation;
   Float: Scalars['Float']['output'];
   Int: Scalars['Int']['output'];
+  Mutation: {};
   Query: {};
+  RemoveFavoriteStationInput: RemoveFavoriteStationInput;
   ReportedValues: ReportedValues;
   SingleStation: SingleStation;
   Station: ResolversInterfaceTypes<ResolversParentTypes>['Station'];
+  StationOperationResult: StationOperationResult;
   StationWithRange: StationWithRange;
   String: Scalars['String']['output'];
   User: User;
@@ -237,8 +294,23 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
   name: 'DateTime';
 }
 
+export type FavoriteStationResolvers<ContextType = any, ParentType extends ResolversParentTypes['FavoriteStation'] = ResolversParentTypes['FavoriteStation']> = {
+  dateAdded?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  lon?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  stationId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  stationName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  addFavoriteStation?: Resolver<ResolversTypes['StationOperationResult'], ParentType, ContextType, RequireFields<MutationAddFavoriteStationArgs, 'input'>>;
+  removeFavoriteStation?: Resolver<ResolversTypes['StationOperationResult'], ParentType, ContextType, RequireFields<MutationRemoveFavoriteStationArgs, 'input'>>;
+};
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   bulkStation?: Resolver<Maybe<ResolversTypes['BulkStation']>, ParentType, ContextType, RequireFields<QueryBulkStationArgs, 'zip'>>;
+  favoriteStations?: Resolver<Array<ResolversTypes['FavoriteStation']>, ParentType, ContextType, RequireFields<QueryFavoriteStationsArgs, 'userSub'>>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   station?: Resolver<Maybe<ResolversTypes['StationWithRange']>, ParentType, ContextType, RequireFields<QueryStationArgs, 'id' | 'range'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -271,6 +343,12 @@ export type StationResolvers<ContextType = any, ParentType extends ResolversPare
   usgsId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
+export type StationOperationResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['StationOperationResult'] = ResolversParentTypes['StationOperationResult']> = {
+  message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type StationWithRangeResolvers<ContextType = any, ParentType extends ResolversParentTypes['StationWithRange'] = ResolversParentTypes['StationWithRange']> = {
   lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   lon?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -298,10 +376,13 @@ export type Resolvers<ContextType = any> = {
   CurrentWeather?: CurrentWeatherResolvers<ContextType>;
   DataFrame?: DataFrameResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
+  FavoriteStation?: FavoriteStationResolvers<ContextType>;
+  Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   ReportedValues?: ReportedValuesResolvers<ContextType>;
   SingleStation?: SingleStationResolvers<ContextType>;
   Station?: StationResolvers<ContextType>;
+  StationOperationResult?: StationOperationResultResolvers<ContextType>;
   StationWithRange?: StationWithRangeResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   WindData?: WindDataResolvers<ContextType>;
