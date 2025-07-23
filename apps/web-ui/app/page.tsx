@@ -12,6 +12,7 @@ interface SingleStation {
 // Assuming apolloClient and convertMmHgToInHg are correctly set up in these paths
 import apolloClient from '../lib/apolloClient';
 import { convertMmHgToInHg } from '@/lib/mmhgToInHg';
+import { Header } from './components/ui/Header';
 
 // Existing Query for Bulk Stations and Weather
 const GET_DATA_QUERY = gql`
@@ -181,8 +182,10 @@ function HomePageContent() {
   }, [historyData]);
 
   return (
-    <main className="flex min-h-screen w-full flex-col items-center bg-slate-100 p-4 font-sans sm:p-8">
-      <div className="w-full max-w-2xl">
+    <>
+      <Header />
+      <main className="flex min-h-screen w-full flex-col items-center bg-slate-100 p-4 font-sans sm:p-8">
+        <div className="w-full max-w-2xl">
         <header className="text-center">
           <h1 className="text-3xl font-bold text-slate-800 sm:text-4xl">
             Find Fishing Spots
@@ -391,8 +394,9 @@ function HomePageContent() {
             </div>
           </div>
         )}
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }
 

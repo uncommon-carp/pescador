@@ -12,7 +12,8 @@
     "@apollo/client": "^3.13.8",
     "next": "13.5.8",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-icons": "^5.5.0"
   },
   "devDependencies": {
     "@pescador/libs": "^1.0.0",
