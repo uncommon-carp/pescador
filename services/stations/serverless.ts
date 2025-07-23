@@ -21,13 +21,14 @@ const serverlessConfiguration: Serverless = {
               'dynamodb:Query',
               'dynamodb:Scan',
             ],
-            Resource: 'arn:aws:dynamodb:us-east-1:*:table/pescador-user-stations*',
+            Resource:
+              'arn:aws:dynamodb:us-east-1:*:table/pescador-user-stations*',
           },
         ],
       },
     },
     environment: {
-      DYNAMODB_TABLE: 'pescador-user-stations-${self:provider.stage}',
+      DYNAMODB_TABLE: 'pescador-user-stations-dev',
     },
   },
 
@@ -47,7 +48,7 @@ const serverlessConfiguration: Serverless = {
       UserStationsTable: {
         Type: 'AWS::DynamoDB::Table',
         Properties: {
-          TableName: 'pescador-user-stations-${self:provider.stage}',
+          TableName: 'UserStations',
           BillingMode: 'PAY_PER_REQUEST',
           AttributeDefinitions: [
             {
