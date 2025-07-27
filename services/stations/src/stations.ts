@@ -13,6 +13,7 @@ import {
   GetFavoriteStationsResult,
   InternalServerError,
   ValidationError,
+  validateUserOwnership,
 } from '@pescador/libs';
 
 const client = new DynamoDBClient({ region: 'us-east-1' });
@@ -22,9 +23,12 @@ export async function addFavoriteStation(event: { body: string }) {
   try {
     const input: ServiceAddFavoriteStationInput = JSON.parse(event.body);
     
-    if (!input.userSub || !input.stationId || !input.stationName) {
-      throw new ValidationError('userSub, stationId, and stationName are required');
+    if (!input.userSub || !input.stationId || !input.stationName || !input.idToken) {
+      throw new ValidationError('userSub, stationId, stationName, and idToken are required');
     }
+
+    // Validate that the token belongs to the user
+    await validateUserOwnership(input.idToken, input.userSub);
 
     const item = {
       userSub: input.userSub,
@@ -73,9 +77,12 @@ export async function removeFavoriteStation(event: { body: string }) {
   try {
     const input: ServiceRemoveFavoriteStationInput = JSON.parse(event.body);
     
-    if (!input.userSub || !input.stationId) {
-      throw new ValidationError('userSub and stationId are required');
+    if (!input.userSub || !input.stationId || !input.idToken) {
+      throw new ValidationError('userSub, stationId, and idToken are required');
     }
+
+    // Validate that the token belongs to the user
+    await validateUserOwnership(input.idToken, input.userSub);
 
     const command = new DeleteItemCommand({
       TableName: tableName,
@@ -118,9 +125,12 @@ export async function getFavoriteStations(event: { body: string }) {
   try {
     const input: GetFavoriteStationsInput = JSON.parse(event.body);
     
-    if (!input.userSub) {
-      throw new ValidationError('userSub is required');
+    if (!input.userSub || !input.idToken) {
+      throw new ValidationError('userSub and idToken are required');
     }
+
+    // Validate that the token belongs to the user
+    await validateUserOwnership(input.idToken, input.userSub);
 
     const command = new QueryCommand({
       TableName: tableName,

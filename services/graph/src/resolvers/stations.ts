@@ -13,10 +13,19 @@ import {
 } from '@pescador/libs';
 import { invokeServiceFunction } from '../utils';
 
+interface GraphQLContext {
+  authorization?: string;
+}
+
 export const addFavoriteStationResolver = async (
   _: unknown,
   { input }: { input: AddFavoriteStationInput },
+  context: GraphQLContext,
 ): Promise<StationOperationResult> => {
+  if (!context.authorization) {
+    throw new Error('Authorization header is required');
+  }
+
   // Convert GraphQL input to service input
   const serviceInput: ServiceAddFavoriteStationInput = {
     userSub: input.userSub,
@@ -24,6 +33,7 @@ export const addFavoriteStationResolver = async (
     stationName: input.stationName,
     lat: input.lat ?? null,
     lon: input.lon ?? null,
+    idToken: context.authorization,
   };
 
   const serviceResp = await invokeServiceFunction<AddFavoriteStationFunction>(
@@ -42,11 +52,17 @@ export const addFavoriteStationResolver = async (
 export const removeFavoriteStationResolver = async (
   _: unknown,
   { input }: { input: RemoveFavoriteStationInput },
+  context: GraphQLContext,
 ): Promise<StationOperationResult> => {
+  if (!context.authorization) {
+    throw new Error('Authorization header is required');
+  }
+
   // Convert GraphQL input to service input
   const serviceInput: ServiceRemoveFavoriteStationInput = {
     userSub: input.userSub,
     stationId: input.stationId,
+    idToken: context.authorization,
   };
 
   const serviceResp = await invokeServiceFunction<RemoveFavoriteStationFunction>(
@@ -65,8 +81,16 @@ export const removeFavoriteStationResolver = async (
 export const getFavoriteStationsResolver = async (
   _: unknown,
   { userSub }: { userSub: string },
+  context: GraphQLContext,
 ) => {
-  const input: GetFavoriteStationsInput = { userSub };
+  if (!context.authorization) {
+    throw new Error('Authorization header is required');
+  }
+
+  const input: GetFavoriteStationsInput = { 
+    userSub,
+    idToken: context.authorization,
+  };
   const serviceResp = await invokeServiceFunction<GetFavoriteStationsFunction>(
     'pescador-stations',
     'getFavoriteStations',

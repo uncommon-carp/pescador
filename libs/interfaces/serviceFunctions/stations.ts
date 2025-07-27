@@ -12,15 +12,18 @@ export interface ServiceAddFavoriteStationInput {
   stationName: string;
   lat?: number | null;
   lon?: number | null;
+  idToken: string;
 }
 
 export interface ServiceRemoveFavoriteStationInput {
   userSub: string;
   stationId: string;
+  idToken: string;
 }
 
 export interface GetFavoriteStationsInput {
   userSub: string;
+  idToken: string;
 }
 
 export interface ServiceStationOperationResult {

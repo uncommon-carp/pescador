@@ -29,6 +29,8 @@ const serverlessConfiguration: Serverless = {
     },
     environment: {
       DYNAMODB_TABLE: 'pescador-user-stations-dev',
+      PESCADOR_COGNITO_USER_POOL_ID: '${ssm:/pescador/cognito/user-pool-id}',
+      PESCADOR_COGNITO_APP_ID: '${ssm:/pescador/cognito/app-client-id}',
     },
   },
 
