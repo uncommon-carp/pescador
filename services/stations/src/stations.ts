@@ -9,8 +9,10 @@ import {
   ServiceAddFavoriteStationInput,
   ServiceRemoveFavoriteStationInput,
   GetFavoriteStationsInput,
+  GetFavoriteStationsOrderedInput,
   ServiceStationOperationResult,
   GetFavoriteStationsResult,
+  GetFavoriteStationsOrderedResult,
   InternalServerError,
   ValidationError,
   validateUserOwnership,
@@ -165,6 +167,74 @@ export async function getFavoriteStations(event: { body: string }) {
 
     throw new InternalServerError(
       'stations-get-favorites-001',
+      error as Error,
+    );
+  }
+}
+
+export async function getFavoriteStationsOrdered(event: { body: string }) {
+  try {
+    const input: GetFavoriteStationsOrderedInput = JSON.parse(event.body);
+    
+    if (!input.userSub || !input.idToken) {
+      throw new ValidationError('userSub and idToken are required');
+    }
+
+    // Validate that the token belongs to the user
+    await validateUserOwnership(input.idToken, input.userSub);
+
+    const command = new QueryCommand({
+      TableName: tableName,
+      KeyConditionExpression: 'userSub = :userSub',
+      ExpressionAttributeValues: marshall({
+        ':userSub': input.userSub,
+      }),
+      Limit: input.limit,
+    });
+
+    const response = await client.send(command);
+    
+    const stations = (response.Items || []).map((item: any) => {
+      const unmarshalled = unmarshall(item);
+      return {
+        stationId: unmarshalled.stationId,
+        stationName: unmarshalled.stationName,
+        lat: unmarshalled.lat ?? undefined,
+        lon: unmarshalled.lon ?? undefined,
+        dateAdded: unmarshalled.dateAdded,
+      };
+    });
+
+    // Apply user preference ordering if provided
+    let orderedStations = stations;
+    if (input.preferredOrder && input.preferredOrder.length > 0) {
+      // Create a map for quick lookup
+      const stationMap = new Map(stations.map(station => [station.stationId, station]));
+      
+      // Order based on preferred order, then append any remaining stations
+      const preferredStations = input.preferredOrder
+        .map(stationId => stationMap.get(stationId))
+        .filter((station): station is NonNullable<typeof station> => station !== undefined);
+      
+      const preferredIds = new Set(input.preferredOrder);
+      const remainingStations = stations.filter(station => !preferredIds.has(station.stationId));
+      
+      orderedStations = [...preferredStations, ...remainingStations];
+    }
+
+    const result: GetFavoriteStationsOrderedResult = {
+      stations: orderedStations,
+      totalCount: stations.length,
+    };
+
+    return result;
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      throw error;
+    }
+
+    throw new InternalServerError(
+      'stations-get-favorites-ordered-001',
       error as Error,
     );
   }

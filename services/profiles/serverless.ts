@@ -1,7 +1,7 @@
 import { Serverless } from 'serverless/aws';
 
 const serverlessConfiguration: Serverless = {
-  service: 'pescador-stations',
+  service: 'pescador-profiles',
   frameworkVersion: '4',
 
   provider: {
@@ -17,18 +17,18 @@ const serverlessConfiguration: Serverless = {
             Action: [
               'dynamodb:PutItem',
               'dynamodb:GetItem',
-              'dynamodb:DeleteItem',
+              'dynamodb:UpdateItem',
               'dynamodb:Query',
               'dynamodb:Scan',
             ],
             Resource:
-              'arn:aws:dynamodb:us-east-1:*:table/pescador-user-stations*',
+              'arn:aws:dynamodb:us-east-1:*:table/pescador-user-profiles*',
           },
         ],
       },
     },
     environment: {
-      DYNAMODB_TABLE: 'pescador-user-stations-dev',
+      DYNAMODB_TABLE: 'pescador-user-profiles-dev',
       PESCADOR_COGNITO_USER_POOL_ID: '${ssm:/pescador/cognito/user-pool-id}',
       PESCADOR_COGNITO_APP_ID: '${ssm:/pescador/cognito/app-client-id}',
     },
@@ -47,18 +47,14 @@ const serverlessConfiguration: Serverless = {
 
   resources: {
     Resources: {
-      UserStationsTable: {
+      UserProfilesTable: {
         Type: 'AWS::DynamoDB::Table',
         Properties: {
-          TableName: 'UserStations',
+          TableName: 'UserProfiles',
           BillingMode: 'PAY_PER_REQUEST',
           AttributeDefinitions: [
             {
               AttributeName: 'userSub',
-              AttributeType: 'S',
-            },
-            {
-              AttributeName: 'stationId',
               AttributeType: 'S',
             },
           ],
@@ -66,10 +62,6 @@ const serverlessConfiguration: Serverless = {
             {
               AttributeName: 'userSub',
               KeyType: 'HASH',
-            },
-            {
-              AttributeName: 'stationId',
-              KeyType: 'RANGE',
             },
           ],
           TimeToLiveSpecification: {
@@ -82,17 +74,14 @@ const serverlessConfiguration: Serverless = {
   },
 
   functions: {
-    addFavoriteStation: {
-      handler: 'src/stations.addFavoriteStation',
+    createUserProfile: {
+      handler: 'src/profiles.createUserProfile',
     },
-    removeFavoriteStation: {
-      handler: 'src/stations.removeFavoriteStation',
+    updateUserProfile: {
+      handler: 'src/profiles.updateUserProfile',
     },
-    getFavoriteStations: {
-      handler: 'src/stations.getFavoriteStations',
-    },
-    getFavoriteStationsOrdered: {
-      handler: 'src/stations.getFavoriteStationsOrdered',
+    getUserProfile: {
+      handler: 'src/profiles.getUserProfile',
     },
   },
 };

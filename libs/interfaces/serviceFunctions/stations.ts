@@ -55,3 +55,22 @@ export interface GetFavoriteStationsFunction {
   input: GetFavoriteStationsInput;
   output: GetFavoriteStationsResult;
 }
+
+export interface GetFavoriteStationsOrderedInput {
+  userSub: string;
+  idToken: string;
+  preferredOrder?: string[];
+  limit?: number;
+}
+
+export interface GetFavoriteStationsOrderedResult {
+  stations: ServiceFavoriteStation[];
+  totalCount: number;
+}
+
+export interface GetFavoriteStationsOrderedFunction {
+  serviceName: 'pescador-stations';
+  functionName: 'getFavoriteStationsOrdered';
+  input: GetFavoriteStationsOrderedInput;
+  output: GetFavoriteStationsOrderedResult;
+}
