@@ -9,50 +9,16 @@ import {
   GetUserProfileResult,
 } from '@pescador/libs';
 import { invokeServiceFunction } from '../utils';
+import {
+  CreateUserProfileInput,
+  UpdateUserProfileInput,
+  UserProfile,
+  ProfileOperationResult,
+  DisplayUnits,
+} from '@pescador/libs';
 
 interface GraphQLContext {
   authorization?: string;
-}
-
-// GraphQL types (should match the schema)
-interface CreateUserProfileInput {
-  userSub: string;
-  email?: string;
-  zipCode?: string;
-  dashboardPreferences?: DashboardPreferencesInput;
-}
-
-interface UpdateUserProfileInput {
-  userSub: string;
-  email?: string;
-  zipCode?: string;
-  dashboardPreferences?: DashboardPreferencesInput;
-}
-
-interface DashboardPreferencesInput {
-  favoriteStationsOrder?: string[];
-  dashboardStationLimit?: number;
-  displayUnits?: 'METRIC' | 'IMPERIAL';
-}
-
-interface ProfileOperationResult {
-  success: boolean;
-  message?: string | null;
-}
-
-interface UserProfile {
-  userSub: string;
-  email?: string | null;
-  zipCode?: string | null;
-  dashboardPreferences: DashboardPreferences;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface DashboardPreferences {
-  favoriteStationsOrder?: string[] | null;
-  dashboardStationLimit?: number | null;
-  displayUnits?: 'METRIC' | 'IMPERIAL' | null;
 }
 
 export const createUserProfileResolver = async (
@@ -64,15 +30,21 @@ export const createUserProfileResolver = async (
     throw new Error('Authorization header is required');
   }
 
+  // Convert GraphQL DisplayUnits enum to service string
+  const convertDisplayUnits = (units?: DisplayUnits | null): 'metric' | 'imperial' | undefined => {
+    if (!units) return undefined;
+    return units === DisplayUnits.Metric ? 'metric' : 'imperial';
+  };
+
   // Convert GraphQL input to service input
   const serviceInput: ServiceCreateUserProfileInput = {
     userSub: input.userSub,
-    email: input.email,
-    zipCode: input.zipCode,
+    email: input.email ?? undefined,
+    zipCode: input.zipCode ?? undefined,
     dashboardPreferences: input.dashboardPreferences ? {
-      favoriteStationsOrder: input.dashboardPreferences.favoriteStationsOrder,
-      dashboardStationLimit: input.dashboardPreferences.dashboardStationLimit,
-      displayUnits: input.dashboardPreferences.displayUnits?.toLowerCase() as 'metric' | 'imperial',
+      favoriteStationsOrder: input.dashboardPreferences.favoriteStationsOrder ?? undefined,
+      dashboardStationLimit: input.dashboardPreferences.dashboardStationLimit ?? undefined,
+      displayUnits: convertDisplayUnits(input.dashboardPreferences.displayUnits),
     } : undefined,
     idToken: context.authorization,
   };
@@ -99,15 +71,21 @@ export const updateUserProfileResolver = async (
     throw new Error('Authorization header is required');
   }
 
+  // Convert GraphQL DisplayUnits enum to service string
+  const convertDisplayUnits = (units?: DisplayUnits | null): 'metric' | 'imperial' | undefined => {
+    if (!units) return undefined;
+    return units === DisplayUnits.Metric ? 'metric' : 'imperial';
+  };
+
   // Convert GraphQL input to service input
   const serviceInput: ServiceUpdateUserProfileInput = {
     userSub: input.userSub,
-    email: input.email,
-    zipCode: input.zipCode,
+    email: input.email ?? undefined,
+    zipCode: input.zipCode ?? undefined,
     dashboardPreferences: input.dashboardPreferences ? {
-      favoriteStationsOrder: input.dashboardPreferences.favoriteStationsOrder,
-      dashboardStationLimit: input.dashboardPreferences.dashboardStationLimit,
-      displayUnits: input.dashboardPreferences.displayUnits?.toLowerCase() as 'metric' | 'imperial',
+      favoriteStationsOrder: input.dashboardPreferences.favoriteStationsOrder ?? undefined,
+      dashboardStationLimit: input.dashboardPreferences.dashboardStationLimit ?? undefined,
+      displayUnits: convertDisplayUnits(input.dashboardPreferences.displayUnits),
     } : undefined,
     idToken: context.authorization,
   };
@@ -149,6 +127,12 @@ export const getUserProfileResolver = async (
     return null;
   }
 
+  // Convert service DisplayUnits string to GraphQL enum
+  const convertToDisplayUnitsEnum = (units?: 'metric' | 'imperial'): DisplayUnits | null => {
+    if (!units) return null;
+    return units === 'metric' ? DisplayUnits.Metric : DisplayUnits.Imperial;
+  };
+
   // Convert service response to GraphQL response
   return {
     userSub: serviceResp.profile.userSub,
@@ -157,7 +141,7 @@ export const getUserProfileResolver = async (
     dashboardPreferences: {
       favoriteStationsOrder: serviceResp.profile.dashboardPreferences.favoriteStationsOrder ?? null,
       dashboardStationLimit: serviceResp.profile.dashboardPreferences.dashboardStationLimit ?? null,
-      displayUnits: serviceResp.profile.dashboardPreferences.displayUnits?.toUpperCase() as 'METRIC' | 'IMPERIAL' ?? null,
+      displayUnits: convertToDisplayUnitsEnum(serviceResp.profile.dashboardPreferences.displayUnits),
     },
     createdAt: serviceResp.profile.createdAt,
     updatedAt: serviceResp.profile.updatedAt,

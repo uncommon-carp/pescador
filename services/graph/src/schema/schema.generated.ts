@@ -4,6 +4,7 @@ export const typeDefs = `#graphql
 type Query {
   hello: String
   user: User
+  userProfile(userSub: String!): UserProfile
   station(id: String!, range: Int!): StationWithRange
   bulkStation(zip: String!): BulkStation
   weather(zip: String!): CurrentWeather
@@ -13,6 +14,8 @@ type Query {
 type Mutation {
   addFavoriteStation(input: AddFavoriteStationInput!): StationOperationResult!
   removeFavoriteStation(input: RemoveFavoriteStationInput!): StationOperationResult!
+  createUserProfile(input: CreateUserProfileInput!): ProfileOperationResult!
+  updateUserProfile(input: UpdateUserProfileInput!): ProfileOperationResult!
 }
 
 interface Station {
@@ -97,6 +100,51 @@ input RemoveFavoriteStationInput {
 }
 
 type StationOperationResult {
+  success: Boolean!
+  message: String
+}
+
+type UserProfile {
+  userSub: String!
+  email: String
+  zipCode: String
+  dashboardPreferences: DashboardPreferences!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type DashboardPreferences {
+  favoriteStationsOrder: [String!]
+  dashboardStationLimit: Int
+  displayUnits: DisplayUnits
+}
+
+enum DisplayUnits {
+  METRIC
+  IMPERIAL
+}
+
+input CreateUserProfileInput {
+  userSub: String!
+  email: String
+  zipCode: String
+  dashboardPreferences: DashboardPreferencesInput
+}
+
+input UpdateUserProfileInput {
+  userSub: String!
+  email: String
+  zipCode: String
+  dashboardPreferences: DashboardPreferencesInput
+}
+
+input DashboardPreferencesInput {
+  favoriteStationsOrder: [String!]
+  dashboardStationLimit: Int
+  displayUnits: DisplayUnits
+}
+
+type ProfileOperationResult {
   success: Boolean!
   message: String
 }

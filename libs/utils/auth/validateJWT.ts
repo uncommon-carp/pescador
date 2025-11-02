@@ -29,7 +29,6 @@ const client = jwksClient({
   timeout: 30000,
   cache: true,
   cacheMaxEntries: 5,
-  cacheMaxAge: 600000, // 10 minutes
 });
 
 function getKey(header: jwt.JwtHeader, callback: jwt.GetPublicKeyOrSecret) {

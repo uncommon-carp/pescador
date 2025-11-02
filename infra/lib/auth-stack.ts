@@ -7,17 +7,21 @@ import * as apigw from '@aws-cdk/aws-apigatewayv2-alpha';
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { BundlingOptions } from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 
 interface AuthStackProps extends cdk.StackProps {
   stage: string;
 }
 
 export class AuthStack extends cdk.Stack {
+  public readonly userPool: cognito.UserPool;
+  public readonly userProfileTable: dynamodb.Table;
   constructor(scope: Construct, id: string, props: AuthStackProps) {
     super(scope, id, props);
 
     // 1. Cognito User Pool
-    const userPool = new cognito.UserPool(this, 'PescadorUserPool', {
+    this.userPool = new cognito.UserPool(this, 'PescadorUserPool', {
       userPoolName: `pescador-user-pool-${props.stage}`,
       selfSignUpEnabled: true,
       signInAliases: { email: true },
@@ -36,8 +40,30 @@ export class AuthStack extends cdk.Stack {
       },
     });
 
-    // 2. Create the User Pool App Client FIRST
-    const userPoolClient = userPool.addClient('PescadorAppClient', {
+    // 2. DynamoDB Table for User Profiles
+    this.userProfileTable = new dynamodb.Table(this, 'UserProfileTable', {
+      tableName: `pescador-user-profiles-${props.stage}`,
+      partitionKey: {
+        name: 'userSub',
+        type: dynamodb.AttributeType.STRING,
+      },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      pointInTimeRecovery: props.stage === 'prod',
+    });
+
+    // Add GSI for email lookups
+    this.userProfileTable.addGlobalSecondaryIndex({
+      indexName: 'email-index',
+      partitionKey: {
+        name: 'email',
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
+    // 3. Create the User Pool App Client
+    const userPoolClient = this.userPool.addClient('PescadorAppClient', {
       userPoolClientName: `pescador-web-ui-${props.stage}`,
       authFlows: { userPassword: true },
       generateSecret: false,
@@ -51,7 +77,7 @@ export class AuthStack extends cdk.Stack {
     );
 
     const lambdaEnv = {
-      PESCADOR_COGNITO_USER_POOL_ID: userPool.userPoolId,
+      PESCADOR_COGNITO_USER_POOL_ID: this.userPool.userPoolId,
       PESCADOR_COGNITO_APP_ID: userPoolClient.userPoolClientId,
     };
 
@@ -67,10 +93,23 @@ export class AuthStack extends cdk.Stack {
         '@aws-sdk/client-cognito-identity-provider', // Include only what we need
       ],
       forceDockerBundling: false,
+      commandHooks: {
+        beforeBundling: () => ['npm install esbuild'],
+        afterBundling: () => [],
+        beforeInstall: () => [],
+      },
     };
 
-    const createLambda = (id: string, handler: string) =>
-      new lambda.NodejsFunction(this, id, {
+    const createLambda = (id: string, handler: string) => {
+      // Create a unique log group for each Lambda function
+      const functionName = `${cdk.Stack.of(this).stackName}-${id}`;
+      const logGroup = new logs.LogGroup(this, `${id}LogGroup`, {
+        logGroupName: `/aws/lambda/${functionName}`,
+        retention: logs.RetentionDays.ONE_WEEK,
+        removalPolicy: cdk.RemovalPolicy.DESTROY, // Clean up on stack deletion
+      });
+
+      const fn = new lambda.NodejsFunction(this, id, {
         runtime: Runtime.NODEJS_18_X,
         projectRoot: monorepoRoot,
         depsLockFilePath: path.join(monorepoRoot, 'package-lock.json'),
@@ -80,7 +119,12 @@ export class AuthStack extends cdk.Stack {
         bundling: bundlingOptions,
         timeout: cdk.Duration.seconds(30),
         memorySize: 512,
+        functionName: functionName,
+        logGroup: logGroup,
       });
+
+      return fn;
+    };
 
     const signUpFn = createLambda('SignUpHandler', 'handleSignUp');
     const confirmSignUpFn = createLambda(
@@ -89,25 +133,62 @@ export class AuthStack extends cdk.Stack {
     );
     const signInFn = createLambda('SignInHandler', 'handleSignIn');
     const signOutFn = createLambda('SignOutHandler', 'handleSignOut');
-    const postConfirmationFn = createLambda(
-      'PostConfirmationHandler',
-      'postConfirmation',
+
+    // 4. Create Post-Confirmation Lambda
+    const postConfirmationSourcePath = path.join(
+      monorepoRoot,
+      'services/auth/src/post-confirmation.ts',
     );
 
-    // 4. Grant permissions
-    userPool.grant(signUpFn, 'cognito-idp:SignUp');
-    userPool.grant(confirmSignUpFn, 'cognito-idp:ConfirmSignUp');
-    userPool.grant(signInFn, 'cognito-idp:InitiateAuth');
-    userPool.grant(signOutFn, 'cognito-idp:GlobalSignOut');
+    const postConfFunctionName = `${cdk.Stack.of(this).stackName}-PostConfirmation`;
+    const postConfLogGroup = new logs.LogGroup(this, 'PostConfirmationLogGroup', {
+      logGroupName: `/aws/lambda/${postConfFunctionName}`,
+      retention: logs.RetentionDays.ONE_WEEK,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
 
-    // Note: Post-confirmation trigger commented out to avoid circular dependencies
-    // If needed, consider setting up separately or using an alternative approach
-    // userPool.addTrigger(
-    //   cognito.UserPoolOperation.POST_CONFIRMATION,
-    //   postConfirmationFn,
-    // );
+    const postConfirmationFn = new lambda.NodejsFunction(this, 'PostConfirmation', {
+      runtime: Runtime.NODEJS_18_X,
+      projectRoot: monorepoRoot,
+      depsLockFilePath: path.join(monorepoRoot, 'package-lock.json'),
+      entry: postConfirmationSourcePath,
+      handler: 'handler',
+      environment: {
+        USER_PROFILE_TABLE_NAME: this.userProfileTable.tableName,
+      },
+      timeout: cdk.Duration.seconds(10),
+      memorySize: 256,
+      functionName: postConfFunctionName,
+      logGroup: postConfLogGroup,
+      bundling: {
+        minify: true,
+        sourceMap: false,
+        target: 'node18',
+        externalModules: ['aws-sdk'],
+        nodeModules: [
+          '@aws-sdk/client-dynamodb',
+          '@aws-sdk/util-dynamodb',
+        ],
+        forceDockerBundling: false,
+      },
+    });
 
-    // 6. API Gateway
+    // Grant permissions to write to DynamoDB
+    this.userProfileTable.grantWriteData(postConfirmationFn);
+
+    // 5. Grant permissions
+    this.userPool.grant(signUpFn, 'cognito-idp:SignUp');
+    this.userPool.grant(confirmSignUpFn, 'cognito-idp:ConfirmSignUp');
+    this.userPool.grant(signInFn, 'cognito-idp:InitiateAuth');
+    this.userPool.grant(signOutFn, 'cognito-idp:GlobalSignOut');
+
+    // 6. Add post-confirmation trigger
+    this.userPool.addTrigger(
+      cognito.UserPoolOperation.POST_CONFIRMATION,
+      postConfirmationFn,
+    );
+
+    // 7. API Gateway
     const httpApi = new apigw.HttpApi(this, 'PescadorAuthApi', {
       corsPreflight: {
         allowHeaders: ['Content-Type'],
@@ -148,7 +229,7 @@ export class AuthStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, 'UserPoolId', {
-      value: userPool.userPoolId,
+      value: this.userPool.userPoolId,
       description: 'Cognito User Pool ID',
       exportName: `PescadorAuth-UserPoolId-${props.stage}`,
     });
@@ -159,14 +240,22 @@ export class AuthStack extends cdk.Stack {
       exportName: `PescadorAuth-UserPoolClientId-${props.stage}`,
     });
 
+    new cdk.CfnOutput(this, 'UserProfileTableName', {
+      value: this.userProfileTable.tableName,
+      description: 'Name of the User Profile DynamoDB table',
+      exportName: `PescadorAuth-UserProfileTableName-${props.stage}`,
+    });
+
     // Store outputs as class properties for potential cross-stack references
-    this.userPoolId = userPool.userPoolId;
+    this.userPoolId = this.userPool.userPoolId;
     this.userPoolClientId = userPoolClient.userPoolClientId;
     this.apiEndpoint = httpApi.url!;
+    this.userProfileTableName = this.userProfileTable.tableName;
   }
 
   // Public readonly properties for cross-stack access
   public readonly userPoolId: string;
   public readonly userPoolClientId: string;
   public readonly apiEndpoint: string;
+  public readonly userProfileTableName: string;
 }
