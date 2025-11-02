@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { FaUser, FaBars } from 'react-icons/fa';
+import { FaUser, FaBars, FaCog } from 'react-icons/fa';
 import { useAuth } from '../../../context/AuthContext';
 import { AuthModal } from './AuthModal';
+import Link from 'next/link';
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -22,7 +23,9 @@ export function Header() {
   return (
     <>
       <nav className="w-full bg-cyan-700 p-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">pescador.io</h1>
+        <Link href="/" className="text-2xl font-bold text-white hover:text-gray-200 transition-colors">
+          pescador.io
+        </Link>
 
         <div className="flex items-center space-x-4">
           <button
@@ -76,6 +79,14 @@ export function Header() {
                   <div className="px-4 py-2 text-sm text-gray-700 border-b">
                     {user.name}
                   </div>
+                  <Link
+                    href="/profile"
+                    onClick={() => setProfileMenuOpen(false)}
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
+                  >
+                    <FaCog className="mr-2" />
+                    Profile Settings
+                  </Link>
                   <button
                     onClick={() => {
                       signOut();

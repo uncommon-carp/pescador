@@ -4,9 +4,18 @@ export const typeDefs = `#graphql
 type Query {
   hello: String
   user: User
+  userProfile(userSub: String!): UserProfile
   station(id: String!, range: Int!): StationWithRange
   bulkStation(zip: String!): BulkStation
   weather(zip: String!): CurrentWeather
+  favoriteStations(userSub: String!): [FavoriteStation!]!
+}
+
+type Mutation {
+  addFavoriteStation(input: AddFavoriteStationInput!): StationOperationResult!
+  removeFavoriteStation(input: RemoveFavoriteStationInput!): StationOperationResult!
+  createUserProfile(input: CreateUserProfileInput!): ProfileOperationResult!
+  updateUserProfile(input: UpdateUserProfileInput!): ProfileOperationResult!
 }
 
 interface Station {
@@ -67,5 +76,76 @@ type WindData {
 type User {
   email: String!
   zipCode: Int
+}
+
+type FavoriteStation {
+  stationId: String!
+  stationName: String!
+  lat: Float
+  lon: Float
+  dateAdded: String!
+}
+
+input AddFavoriteStationInput {
+  userSub: String!
+  stationId: String!
+  stationName: String!
+  lat: Float
+  lon: Float
+}
+
+input RemoveFavoriteStationInput {
+  userSub: String!
+  stationId: String!
+}
+
+type StationOperationResult {
+  success: Boolean!
+  message: String
+}
+
+type UserProfile {
+  userSub: String!
+  email: String
+  zipCode: String
+  dashboardPreferences: DashboardPreferences!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type DashboardPreferences {
+  favoriteStationsOrder: [String!]
+  dashboardStationLimit: Int
+  displayUnits: DisplayUnits
+}
+
+enum DisplayUnits {
+  METRIC
+  IMPERIAL
+}
+
+input CreateUserProfileInput {
+  userSub: String!
+  email: String
+  zipCode: String
+  dashboardPreferences: DashboardPreferencesInput
+}
+
+input UpdateUserProfileInput {
+  userSub: String!
+  email: String
+  zipCode: String
+  dashboardPreferences: DashboardPreferencesInput
+}
+
+input DashboardPreferencesInput {
+  favoriteStationsOrder: [String!]
+  dashboardStationLimit: Int
+  displayUnits: DisplayUnits
+}
+
+type ProfileOperationResult {
+  success: Boolean!
+  message: String
 }
 `;

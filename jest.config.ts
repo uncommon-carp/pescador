@@ -9,7 +9,7 @@ const config: Config = {
   roots: ['<rootDir>/services', '<rootDir>/libs'],
 
   // Ignore the web-ui app from test runs completely
-  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/apps/web-ui/'],
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/apps/web-ui/', '/.serverless/'],
 
   // Enable code coverage collection
   collectCoverage: true,
@@ -25,6 +25,7 @@ const config: Config = {
   coveragePathIgnorePatterns: [
     '/node_modules/',
     'jest.config.ts',
+    '/.serverless/',
     // Exclude interface-only packages as there is no logic to test
     '<rootDir>/libs/interfaces/',
     // Exclude test files themselves from coverage

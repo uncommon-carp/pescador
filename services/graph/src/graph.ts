@@ -12,12 +12,22 @@ const resolvers = getResolvers();
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-const server = new ApolloServer({
+interface GraphQLContext {
+  authorization?: string;
+}
+
+const server = new ApolloServer<GraphQLContext>({
   schema,
   introspection: true,
 });
 
 export const graphqlHandler = startServerAndCreateLambdaHandler(
   server,
-  handlers.createAPIGatewayProxyEventV2RequestHandler(),
+  handlers.createAPIGatewayProxyEventV2RequestHandler({
+    context: async ({ event }) => {
+      return {
+        authorization: event.headers?.authorization,
+      };
+    },
+  }),
 );
