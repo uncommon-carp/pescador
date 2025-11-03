@@ -22,26 +22,26 @@ export function Header() {
 
   return (
     <>
-      <nav className="w-full bg-cyan-700 p-4 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold text-white hover:text-gray-200 transition-colors">
+      <nav className="w-full bg-slate-900/90 backdrop-blur-md border-b border-emerald-700/30 p-4 flex justify-between items-center shadow-lg">
+        <Link href="/" className="text-2xl font-bold text-stone-100 hover:text-amber-400 transition-colors">
           pescador.io
         </Link>
 
         <div className="flex items-center space-x-4">
           <button
-            className="md:hidden text-white text-xl"
+            className="md:hidden text-stone-100 hover:text-amber-400 text-xl transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
           >
             <FaBars />
           </button>
 
           <ul
-            className={`text-white ${menuOpen ? 'flex flex-col items-center absolute top-16 right-4 bg-cyan-700 p-4 rounded shadow-lg space-y-2 md:relative md:top-0 md:right-0 md:bg-transparent md:p-0 md:shadow-none md:flex-row md:items-start md:space-y-0' : 'hidden'} md:flex md:space-x-6`}
+            className={`text-stone-100 ${menuOpen ? 'flex flex-col items-center absolute top-16 right-4 bg-slate-900/95 backdrop-blur-md border border-emerald-700/40 p-4 rounded-lg shadow-xl space-y-2 md:relative md:top-0 md:right-0 md:bg-transparent md:border-0 md:p-0 md:shadow-none md:flex-row md:items-start md:space-y-0' : 'hidden'} md:flex md:space-x-6`}
           >
             <li>
               <a
                 href="#search"
-                className="block py-1 hover:text-gray-200 text-center md:text-left"
+                className="block py-1 hover:text-amber-400 transition-colors text-center md:text-left"
               >
                 Search
               </a>
@@ -49,7 +49,7 @@ export function Header() {
             <li>
               <a
                 href="#about"
-                className="block py-1 hover:text-gray-200 text-center md:text-left"
+                className="block py-1 hover:text-amber-400 transition-colors text-center md:text-left"
               >
                 About
               </a>
@@ -57,7 +57,7 @@ export function Header() {
             <li>
               <a
                 href="#stations"
-                className="block py-1 hover:text-gray-200 text-center md:text-left"
+                className="block py-1 hover:text-amber-400 transition-colors text-center md:text-left"
               >
                 My Stations
               </a>
@@ -68,21 +68,21 @@ export function Header() {
             <div className="relative">
               <button
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                className="text-white hover:text-gray-200 p-2"
+                className="text-stone-100 hover:text-amber-400 p-2 transition-colors"
                 title={user.name}
               >
                 <FaUser className="text-lg" />
               </button>
 
               {profileMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                  <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-slate-800 border border-emerald-700/40 rounded-lg shadow-xl py-1 z-50 backdrop-blur-md">
+                  <div className="px-4 py-2 text-sm text-stone-200 border-b border-emerald-700/30">
                     {user.name}
                   </div>
                   <Link
                     href="/profile"
                     onClick={() => setProfileMenuOpen(false)}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full"
+                    className="flex items-center px-4 py-2 text-sm text-stone-200 hover:bg-slate-700/50 hover:text-amber-400 w-full transition-colors"
                   >
                     <FaCog className="mr-2" />
                     Profile Settings
@@ -93,7 +93,7 @@ export function Header() {
                       setProfileMenuOpen(false);
                     }}
                     disabled={loading}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                    className="block w-full text-left px-4 py-2 text-sm text-stone-200 hover:bg-slate-700/50 hover:text-amber-400 disabled:opacity-50 transition-colors"
                   >
                     {loading ? 'Loading...' : 'Sign Out'}
                   </button>
@@ -104,7 +104,7 @@ export function Header() {
             <button
               onClick={handleAuthClick}
               disabled={loading}
-              className="text-white hover:text-gray-200 py-1 px-3 disabled:opacity-50"
+              className="text-stone-100 hover:text-amber-400 py-1 px-3 disabled:opacity-50 transition-colors font-medium"
             >
               {loading ? 'Loading...' : 'Sign In'}
             </button>

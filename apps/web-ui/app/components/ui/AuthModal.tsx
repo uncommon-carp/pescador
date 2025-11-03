@@ -77,17 +77,17 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-slate-800 border border-emerald-700/40 rounded-lg p-6 w-full max-w-md mx-4 shadow-2xl">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">
+          <h2 className="text-xl font-bold text-stone-100">
             {mode === 'signin' && 'Sign In'}
             {mode === 'signup' && 'Sign Up'}
             {mode === 'confirm' && 'Confirm Account'}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-xl"
+            className="text-stone-400 hover:text-stone-100 text-xl transition-colors"
           >
             ×
           </button>
@@ -97,8 +97,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <div
             className={`mb-4 p-3 rounded ${
               error.includes('confirmed')
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
+                ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'
+                : 'bg-orange-900/50 text-orange-300 border border-orange-700/50'
             }`}
           >
             {error}
@@ -108,7 +108,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'signup' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-stone-200 mb-1">
                 Name
               </label>
               <input
@@ -117,7 +117,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 value={formData.name}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700"
+                className="w-full px-3 py-2 bg-slate-900/50 border border-emerald-700/50 text-stone-100 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-emerald-600"
               />
             </div>
           )}
@@ -125,7 +125,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           {(mode === 'signin' || mode === 'signup') && (
             <>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-stone-200 mb-1">
                   Email
                 </label>
                 <input
@@ -134,12 +134,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700"
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-emerald-700/50 text-stone-100 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-emerald-600"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-stone-200 mb-1">
                   Password
                 </label>
                 <input
@@ -148,8 +148,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700"
-                style={{ color: '#000000' }}
+                  className="w-full px-3 py-2 bg-slate-900/50 border border-emerald-700/50 text-stone-100 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-emerald-600"
                 />
               </div>
             </>
@@ -157,7 +156,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
           {mode === 'confirm' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-stone-200 mb-1">
                 Confirmation Code
               </label>
               <input
@@ -167,8 +166,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 onChange={handleInputChange}
                 required
                 placeholder="Enter the code sent to your email"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-700"
-                style={{ color: '#000000' }}
+                className="w-full px-3 py-2 bg-slate-900/50 border border-emerald-700/50 text-stone-100 placeholder-stone-500 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-emerald-600"
               />
             </div>
           )}
@@ -176,7 +174,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-cyan-700 text-white py-2 px-4 rounded-md hover:bg-cyan-800 focus:outline-none focus:ring-2 focus:ring-cyan-700 disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-orange-600 to-amber-700 text-white py-2 px-4 rounded-md hover:from-orange-500 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-orange-600/50 disabled:opacity-50 transition-all duration-300"
           >
             {loading ? (
               'Loading...'
@@ -192,7 +190,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
         {mode !== 'confirm' && (
           <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-stone-300">
               {mode === 'signin'
                 ? "Don't have an account? "
                 : 'Already have an account? '}
@@ -200,7 +198,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 onClick={() =>
                   switchMode(mode === 'signin' ? 'signup' : 'signin')
                 }
-                className="text-cyan-700 hover:underline font-medium"
+                className="text-amber-400 hover:text-amber-300 hover:underline font-medium transition-colors"
               >
                 {mode === 'signin' ? 'Sign up' : 'Sign in'}
               </button>
