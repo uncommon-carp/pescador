@@ -111,6 +111,21 @@ export class GraphStack extends cdk.Stack {
       }));
     });
 
+    // 3.1 Grant permissions to invoke conditions service functions
+    const conditionsFunctionArns = [
+      `arn:aws:lambda:${cdk.Stack.of(this).region}:${cdk.Stack.of(this).account}:function:pescador-conditions-${props.stage}-getWeatherByZip`,
+      `arn:aws:lambda:${cdk.Stack.of(this).region}:${cdk.Stack.of(this).account}:function:pescador-conditions-${props.stage}-getStationsByBox`,
+      `arn:aws:lambda:${cdk.Stack.of(this).region}:${cdk.Stack.of(this).account}:function:pescador-conditions-${props.stage}-getStationHistory`,
+    ];
+
+    conditionsFunctionArns.forEach(arn => {
+      this.graphqlFunction.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+        effect: cdk.aws_iam.Effect.ALLOW,
+        actions: ['lambda:InvokeFunction'],
+        resources: [arn],
+      }));
+    });
+
     // 4. Grant DynamoDB permissions (for direct access if needed)
     const tableArn = `arn:aws:dynamodb:${cdk.Stack.of(this).region}:${cdk.Stack.of(this).account}:table/${props.userProfileTableName}`;
     const gsiArn = `${tableArn}/index/email-index`;
