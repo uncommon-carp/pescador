@@ -1,37 +1,40 @@
-# Node + Typescript Monorepo Starter
+# Pescador
 
-A boilerplate for a microservice monorepo built with Node.js and Typescript.
-Opinionated towards AWS, Serverless, and GraphQL, it provides ESLint, Prettier,
-and Jest configurations out of the box.
+Weather and water data aggregation and prediction for angling and hunting.
 
-## Getting Started
+## Tech Stack
 
-1. Clone the repo:
+Typescript, GraphQL, AWS (CDK)
 
-```bash
-git clone url
-```
+## About
 
-2. Install dependencies:
+This app came about because I am an avid angler and I became frustrated with
+moving through multiple apps to get an idea of fishing conditions for the day.
 
-```bash
-npm install
-```
+This app will allow users to use their location or plug in coords, zip code,
+or city and state to receive weather and water information. The weather data
+will be a short history, current, and future, mostly focused on precipitation,
+barometric pressure, and cloud cover. Water information will come from USGS
+and NOAA measuring sites, providing streamflow, gage heights, and temperature
+where applicable.
 
-## Adding A Service
+Users will also be able to collect a small grouping of favorite measuring sites
+to build a dashboard of information, to minimize searching and digging for
+information.
 
-Adding a service can be done one of two ways:
+## Current State
 
-1. Navigating to the packages directory, creating a directory, and running
+- Weather and nearby stations based on zip code
+- User auth with profiles
 
-   ```bash
-   npm init -y
-   ```
+## Coming Soon
 
-or
+- Site favoriting
+- User dashboard
+- Weather history
 
-2. Running the following command:
+## For the Future
 
-```bash
-npm init -w ./packages/{SERVICE_NAME} -y
-```
+- Detailed weather maps with radar and wind overlays
+- Fishing quality prediction
+- Trip tracking
