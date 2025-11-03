@@ -25,8 +25,15 @@ export const graphqlHandler = startServerAndCreateLambdaHandler(
   server,
   handlers.createAPIGatewayProxyEventV2RequestHandler({
     context: async ({ event }) => {
+      // Handle both lowercase and capitalized authorization headers
+      const authHeader = event.headers?.authorization || event.headers?.Authorization;
+
+      // Debug logging
+      console.log('Headers received:', JSON.stringify(event.headers, null, 2));
+      console.log('Authorization header:', authHeader);
+
       return {
-        authorization: event.headers?.authorization,
+        authorization: authHeader,
       };
     },
   }),

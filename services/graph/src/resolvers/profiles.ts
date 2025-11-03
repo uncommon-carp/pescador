@@ -2,20 +2,20 @@ import {
   CreateUserProfileFunction,
   UpdateUserProfileFunction,
   GetUserProfileFunction,
-  CreateUserProfileInput as ServiceCreateUserProfileInput,
-  UpdateUserProfileInput as ServiceUpdateUserProfileInput,
-  GetUserProfileInput,
+  ServiceCreateUserProfileInput,
+  ServiceUpdateUserProfileInput,
+  ServiceGetUserProfileInput as GetUserProfileInput,
   ServiceProfileOperationResult,
-  GetUserProfileResult,
+  ServiceGetUserProfileResult as GetUserProfileResult,
 } from '@pescador/libs';
 import { invokeServiceFunction } from '../utils';
-import {
+import type {
   CreateUserProfileInput,
   UpdateUserProfileInput,
   UserProfile,
   ProfileOperationResult,
-  DisplayUnits,
-} from '@pescador/libs';
+} from '../../../../libs/interfaces/graph/types.generated';
+import { DisplayUnits } from '../../../../libs/interfaces/graph/types.generated';
 
 interface GraphQLContext {
   authorization?: string;
@@ -26,6 +26,9 @@ export const createUserProfileResolver = async (
   { input }: { input: CreateUserProfileInput },
   context: GraphQLContext,
 ): Promise<ProfileOperationResult> => {
+  console.log('createUserProfileResolver - context:', context);
+  console.log('createUserProfileResolver - authorization:', context.authorization);
+
   if (!context.authorization) {
     throw new Error('Authorization header is required');
   }
@@ -67,6 +70,9 @@ export const updateUserProfileResolver = async (
   { input }: { input: UpdateUserProfileInput },
   context: GraphQLContext,
 ): Promise<ProfileOperationResult> => {
+  console.log('updateUserProfileResolver - context:', context);
+  console.log('updateUserProfileResolver - authorization:', context.authorization);
+
   if (!context.authorization) {
     throw new Error('Authorization header is required');
   }
@@ -108,6 +114,10 @@ export const getUserProfileResolver = async (
   { userSub }: { userSub: string },
   context: GraphQLContext,
 ): Promise<UserProfile | null> => {
+  console.log('getUserProfileResolver - context:', context);
+  console.log('getUserProfileResolver - authorization:', context.authorization);
+  console.log('getUserProfileResolver - userSub:', userSub);
+
   if (!context.authorization) {
     throw new Error('Authorization header is required');
   }
