@@ -151,6 +151,7 @@ export class GraphStack extends cdk.Stack {
         allowHeaders: ['Content-Type', 'Authorization'],
         allowMethods: [apigw.CorsHttpMethod.POST, apigw.CorsHttpMethod.OPTIONS],
         allowOrigins: ['*'], // Configure appropriately for production
+        maxAge: cdk.Duration.days(1),
       },
     });
 
