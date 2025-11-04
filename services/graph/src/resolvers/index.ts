@@ -8,12 +8,11 @@ import {
   removeFavoriteStationResolver,
   getFavoriteStationsResolver,
 } from './stations';
-// Temporarily disabled due to type issues - will fix after deployment
-// import {
-//   createUserProfileResolver,
-//   updateUserProfileResolver,
-//   getUserProfileResolver,
-// } from './profiles';
+import {
+  createUserProfileResolver,
+  updateUserProfileResolver,
+  getUserProfileResolver,
+} from './profiles';
 
 export function getResolvers() {
   const resolvers = {
@@ -23,16 +22,13 @@ export function getResolvers() {
       bulkStation: getStationsByBoxResolver,
       station: getStationByIdResolver,
       favoriteStations: getFavoriteStationsResolver,
-      // userProfile: getUserProfileResolver, // TODO: Fix type issues
-      userProfile: () => null, // Temporary placeholder
+      userProfile: getUserProfileResolver,
     },
     Mutation: {
       addFavoriteStation: addFavoriteStationResolver,
       removeFavoriteStation: removeFavoriteStationResolver,
-      // createUserProfile: createUserProfileResolver, // TODO: Fix type issues
-      // updateUserProfile: updateUserProfileResolver, // TODO: Fix type issues
-      createUserProfile: () => ({ success: false, message: 'Not implemented yet' }),
-      updateUserProfile: () => ({ success: false, message: 'Not implemented yet' }),
+      createUserProfile: createUserProfileResolver,
+      updateUserProfile: updateUserProfileResolver,
     },
   };
 

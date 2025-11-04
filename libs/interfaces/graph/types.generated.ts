@@ -30,6 +30,13 @@ export type BulkStation = {
   streams?: Maybe<Array<Maybe<SingleStation>>>;
 };
 
+export type CreateUserProfileInput = {
+  dashboardPreferences?: InputMaybe<DashboardPreferencesInput>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  userSub: Scalars['String']['input'];
+  zipCode?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CurrentWeather = {
   clouds: Scalars['String']['output'];
   humidity: Scalars['Float']['output'];
@@ -38,10 +45,27 @@ export type CurrentWeather = {
   wind?: Maybe<WindData>;
 };
 
+export type DashboardPreferences = {
+  dashboardStationLimit?: Maybe<Scalars['Int']['output']>;
+  displayUnits?: Maybe<DisplayUnits>;
+  favoriteStationsOrder?: Maybe<Array<Scalars['String']['output']>>;
+};
+
+export type DashboardPreferencesInput = {
+  dashboardStationLimit?: InputMaybe<Scalars['Int']['input']>;
+  displayUnits?: InputMaybe<DisplayUnits>;
+  favoriteStationsOrder?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
 export type DataFrame = {
   timestamp?: Maybe<Scalars['String']['output']>;
   value?: Maybe<Scalars['Float']['output']>;
 };
+
+export enum DisplayUnits {
+  Imperial = 'IMPERIAL',
+  Metric = 'METRIC'
+}
 
 export type FavoriteStation = {
   dateAdded: Scalars['String']['output'];
@@ -53,7 +77,9 @@ export type FavoriteStation = {
 
 export type Mutation = {
   addFavoriteStation: StationOperationResult;
+  createUserProfile: ProfileOperationResult;
   removeFavoriteStation: StationOperationResult;
+  updateUserProfile: ProfileOperationResult;
 };
 
 
@@ -62,8 +88,23 @@ export type MutationAddFavoriteStationArgs = {
 };
 
 
+export type MutationCreateUserProfileArgs = {
+  input: CreateUserProfileInput;
+};
+
+
 export type MutationRemoveFavoriteStationArgs = {
   input: RemoveFavoriteStationInput;
+};
+
+
+export type MutationUpdateUserProfileArgs = {
+  input: UpdateUserProfileInput;
+};
+
+export type ProfileOperationResult = {
+  message?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
 };
 
 export type Query = {
@@ -72,6 +113,7 @@ export type Query = {
   hello?: Maybe<Scalars['String']['output']>;
   station?: Maybe<StationWithRange>;
   user?: Maybe<User>;
+  userProfile?: Maybe<UserProfile>;
   weather?: Maybe<CurrentWeather>;
 };
 
@@ -89,6 +131,11 @@ export type QueryFavoriteStationsArgs = {
 export type QueryStationArgs = {
   id: Scalars['String']['input'];
   range: Scalars['Int']['input'];
+};
+
+
+export type QueryUserProfileArgs = {
+  userSub: Scalars['String']['input'];
 };
 
 
@@ -137,9 +184,25 @@ export type StationWithRange = Station & {
   values?: Maybe<ReportedValues>;
 };
 
+export type UpdateUserProfileInput = {
+  dashboardPreferences?: InputMaybe<DashboardPreferencesInput>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  userSub: Scalars['String']['input'];
+  zipCode?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type User = {
   email: Scalars['String']['output'];
   zipCode?: Maybe<Scalars['Int']['output']>;
+};
+
+export type UserProfile = {
+  createdAt: Scalars['String']['output'];
+  dashboardPreferences: DashboardPreferences;
+  email?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['String']['output'];
+  userSub: Scalars['String']['output'];
+  zipCode?: Maybe<Scalars['String']['output']>;
 };
 
 export type WindData = {
@@ -226,13 +289,18 @@ export type ResolversTypes = {
   AddFavoriteStationInput: AddFavoriteStationInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   BulkStation: ResolverTypeWrapper<BulkStation>;
+  CreateUserProfileInput: CreateUserProfileInput;
   CurrentWeather: ResolverTypeWrapper<CurrentWeather>;
+  DashboardPreferences: ResolverTypeWrapper<DashboardPreferences>;
+  DashboardPreferencesInput: DashboardPreferencesInput;
   DataFrame: ResolverTypeWrapper<DataFrame>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
+  DisplayUnits: DisplayUnits;
   FavoriteStation: ResolverTypeWrapper<FavoriteStation>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<{}>;
+  ProfileOperationResult: ResolverTypeWrapper<ProfileOperationResult>;
   Query: ResolverTypeWrapper<{}>;
   RemoveFavoriteStationInput: RemoveFavoriteStationInput;
   ReportedValues: ResolverTypeWrapper<ReportedValues>;
@@ -241,7 +309,9 @@ export type ResolversTypes = {
   StationOperationResult: ResolverTypeWrapper<StationOperationResult>;
   StationWithRange: ResolverTypeWrapper<StationWithRange>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  UpdateUserProfileInput: UpdateUserProfileInput;
   User: ResolverTypeWrapper<User>;
+  UserProfile: ResolverTypeWrapper<UserProfile>;
   WindData: ResolverTypeWrapper<WindData>;
 };
 
@@ -250,13 +320,17 @@ export type ResolversParentTypes = {
   AddFavoriteStationInput: AddFavoriteStationInput;
   Boolean: Scalars['Boolean']['output'];
   BulkStation: BulkStation;
+  CreateUserProfileInput: CreateUserProfileInput;
   CurrentWeather: CurrentWeather;
+  DashboardPreferences: DashboardPreferences;
+  DashboardPreferencesInput: DashboardPreferencesInput;
   DataFrame: DataFrame;
   DateTime: Scalars['DateTime']['output'];
   FavoriteStation: FavoriteStation;
   Float: Scalars['Float']['output'];
   Int: Scalars['Int']['output'];
   Mutation: {};
+  ProfileOperationResult: ProfileOperationResult;
   Query: {};
   RemoveFavoriteStationInput: RemoveFavoriteStationInput;
   ReportedValues: ReportedValues;
@@ -265,7 +339,9 @@ export type ResolversParentTypes = {
   StationOperationResult: StationOperationResult;
   StationWithRange: StationWithRange;
   String: Scalars['String']['output'];
+  UpdateUserProfileInput: UpdateUserProfileInput;
   User: User;
+  UserProfile: UserProfile;
   WindData: WindData;
 };
 
@@ -281,6 +357,13 @@ export type CurrentWeatherResolvers<ContextType = any, ParentType extends Resolv
   pressure?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   temp?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   wind?: Resolver<Maybe<ResolversTypes['WindData']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DashboardPreferencesResolvers<ContextType = any, ParentType extends ResolversParentTypes['DashboardPreferences'] = ResolversParentTypes['DashboardPreferences']> = {
+  dashboardStationLimit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  displayUnits?: Resolver<Maybe<ResolversTypes['DisplayUnits']>, ParentType, ContextType>;
+  favoriteStationsOrder?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -305,7 +388,15 @@ export type FavoriteStationResolvers<ContextType = any, ParentType extends Resol
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addFavoriteStation?: Resolver<ResolversTypes['StationOperationResult'], ParentType, ContextType, RequireFields<MutationAddFavoriteStationArgs, 'input'>>;
+  createUserProfile?: Resolver<ResolversTypes['ProfileOperationResult'], ParentType, ContextType, RequireFields<MutationCreateUserProfileArgs, 'input'>>;
   removeFavoriteStation?: Resolver<ResolversTypes['StationOperationResult'], ParentType, ContextType, RequireFields<MutationRemoveFavoriteStationArgs, 'input'>>;
+  updateUserProfile?: Resolver<ResolversTypes['ProfileOperationResult'], ParentType, ContextType, RequireFields<MutationUpdateUserProfileArgs, 'input'>>;
+};
+
+export type ProfileOperationResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['ProfileOperationResult'] = ResolversParentTypes['ProfileOperationResult']> = {
+  message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  success?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
@@ -314,6 +405,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   station?: Resolver<Maybe<ResolversTypes['StationWithRange']>, ParentType, ContextType, RequireFields<QueryStationArgs, 'id' | 'range'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  userProfile?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType, RequireFields<QueryUserProfileArgs, 'userSub'>>;
   weather?: Resolver<Maybe<ResolversTypes['CurrentWeather']>, ParentType, ContextType, RequireFields<QueryWeatherArgs, 'zip'>>;
 };
 
@@ -364,6 +456,16 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type UserProfileResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserProfile'] = ResolversParentTypes['UserProfile']> = {
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dashboardPreferences?: Resolver<ResolversTypes['DashboardPreferences'], ParentType, ContextType>;
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userSub?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  zipCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type WindDataResolvers<ContextType = any, ParentType extends ResolversParentTypes['WindData'] = ResolversParentTypes['WindData']> = {
   direction?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gust?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -374,10 +476,12 @@ export type WindDataResolvers<ContextType = any, ParentType extends ResolversPar
 export type Resolvers<ContextType = any> = {
   BulkStation?: BulkStationResolvers<ContextType>;
   CurrentWeather?: CurrentWeatherResolvers<ContextType>;
+  DashboardPreferences?: DashboardPreferencesResolvers<ContextType>;
   DataFrame?: DataFrameResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   FavoriteStation?: FavoriteStationResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  ProfileOperationResult?: ProfileOperationResultResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   ReportedValues?: ReportedValuesResolvers<ContextType>;
   SingleStation?: SingleStationResolvers<ContextType>;
@@ -385,6 +489,7 @@ export type Resolvers<ContextType = any> = {
   StationOperationResult?: StationOperationResultResolvers<ContextType>;
   StationWithRange?: StationWithRangeResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  UserProfile?: UserProfileResolvers<ContextType>;
   WindData?: WindDataResolvers<ContextType>;
 };
 

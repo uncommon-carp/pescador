@@ -6,13 +6,13 @@ import {
 } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import {
-  CreateUserProfileInput,
-  UpdateUserProfileInput,
-  GetUserProfileInput,
+  ServiceCreateUserProfileInput as CreateUserProfileInput,
+  ServiceUpdateUserProfileInput as UpdateUserProfileInput,
+  ServiceGetUserProfileInput as GetUserProfileInput,
   ServiceProfileOperationResult,
-  GetUserProfileResult,
+  ServiceGetUserProfileResult as GetUserProfileResult,
   ServiceUserProfile,
-  DashboardPreferences,
+  ServiceDashboardPreferences as DashboardPreferences,
   InternalServerError,
   ValidationError,
   validateUserOwnership,
