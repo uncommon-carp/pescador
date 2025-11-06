@@ -96,35 +96,13 @@ export class GraphStack extends cdk.Stack {
       },
     });
 
-    // 3. Grant permissions to invoke profile service functions
-    const profileFunctionArns = [
-      props.createProfileFunctionArn,
-      props.updateProfileFunctionArn,
-      props.getProfileFunctionArn,
-    ];
-
-    profileFunctionArns.forEach(arn => {
-      this.graphqlFunction.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
-        effect: cdk.aws_iam.Effect.ALLOW,
-        actions: ['lambda:InvokeFunction'],
-        resources: [arn],
-      }));
-    });
-
-    // 3.1 Grant permissions to invoke conditions service functions
-    const conditionsFunctionArns = [
-      `arn:aws:lambda:${cdk.Stack.of(this).region}:${cdk.Stack.of(this).account}:function:pescador-conditions-${props.stage}-getWeatherByZip`,
-      `arn:aws:lambda:${cdk.Stack.of(this).region}:${cdk.Stack.of(this).account}:function:pescador-conditions-${props.stage}-getStationsByBox`,
-      `arn:aws:lambda:${cdk.Stack.of(this).region}:${cdk.Stack.of(this).account}:function:pescador-conditions-${props.stage}-getStationHistory`,
-    ];
-
-    conditionsFunctionArns.forEach(arn => {
-      this.graphqlFunction.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
-        effect: cdk.aws_iam.Effect.ALLOW,
-        actions: ['lambda:InvokeFunction'],
-        resources: [arn],
-      }));
-    });
+    // 3. Grant permissions to invoke all Lambda functions
+    // Using wildcard to allow Graph to call any Lambda function
+    this.graphqlFunction.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      effect: cdk.aws_iam.Effect.ALLOW,
+      actions: ['lambda:InvokeFunction'],
+      resources: [`arn:aws:lambda:${cdk.Stack.of(this).region}:${cdk.Stack.of(this).account}:function:*`],
+    }));
 
     // 4. Grant DynamoDB permissions (for direct access if needed)
     const tableArn = `arn:aws:dynamodb:${cdk.Stack.of(this).region}:${cdk.Stack.of(this).account}:table/${props.userProfileTableName}`;

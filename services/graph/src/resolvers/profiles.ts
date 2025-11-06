@@ -77,36 +77,48 @@ export const updateUserProfileResolver = async (
     throw new Error('Authorization header is required');
   }
 
-  // Convert GraphQL DisplayUnits enum to service string
-  const convertDisplayUnits = (units?: DisplayUnits | null): 'metric' | 'imperial' | undefined => {
-    if (!units) return undefined;
-    return units === DisplayUnits.Metric ? 'metric' : 'imperial';
-  };
+  try {
+    // Convert GraphQL DisplayUnits enum to service string
+    const convertDisplayUnits = (units?: DisplayUnits | null): 'metric' | 'imperial' | undefined => {
+      if (!units) return undefined;
+      return units === DisplayUnits.Metric ? 'metric' : 'imperial';
+    };
 
-  // Convert GraphQL input to service input
-  const serviceInput: ServiceUpdateUserProfileInput = {
-    userSub: input.userSub,
-    email: input.email ?? undefined,
-    zipCode: input.zipCode ?? undefined,
-    dashboardPreferences: input.dashboardPreferences ? {
-      favoriteStationsOrder: input.dashboardPreferences.favoriteStationsOrder ?? undefined,
-      dashboardStationLimit: input.dashboardPreferences.dashboardStationLimit ?? undefined,
-      displayUnits: convertDisplayUnits(input.dashboardPreferences.displayUnits),
-    } : undefined,
-    idToken: context.authorization,
-  };
+    // Convert GraphQL input to service input
+    const serviceInput: ServiceUpdateUserProfileInput = {
+      userSub: input.userSub,
+      email: input.email ?? undefined,
+      zipCode: input.zipCode ?? undefined,
+      dashboardPreferences: input.dashboardPreferences ? {
+        favoriteStationsOrder: input.dashboardPreferences.favoriteStationsOrder ?? undefined,
+        dashboardStationLimit: input.dashboardPreferences.dashboardStationLimit ?? undefined,
+        displayUnits: convertDisplayUnits(input.dashboardPreferences.displayUnits),
+      } : undefined,
+      idToken: context.authorization,
+    };
 
-  const serviceResp = await invokeServiceFunction<UpdateUserProfileFunction>(
-    'pescador-profiles',
-    'updateUserProfile',
-    serviceInput,
-  );
+    console.log('updateUserProfileResolver - invoking service with input:', JSON.stringify(serviceInput));
 
-  // Convert service response to GraphQL response
-  return {
-    success: serviceResp.success,
-    message: serviceResp.message ?? null,
-  };
+    const serviceResp = await invokeServiceFunction<UpdateUserProfileFunction>(
+      'pescador-profiles',
+      'updateUserProfile',
+      serviceInput,
+    );
+
+    console.log('updateUserProfileResolver - service response:', JSON.stringify(serviceResp));
+
+    // Convert service response to GraphQL response
+    return {
+      success: serviceResp?.success ?? false,
+      message: serviceResp?.message ?? null,
+    };
+  } catch (error) {
+    console.error('updateUserProfileResolver - error:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'An unknown error occurred',
+    };
+  }
 };
 
 export const getUserProfileResolver = async (
