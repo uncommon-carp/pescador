@@ -7,6 +7,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { getResolvers } from './resolvers';
 
 import { typeDefs } from './schema/schema.generated';
+import { validateJWT } from '@pescador/libs';
 
 const resolvers = getResolvers();
 
@@ -14,13 +15,18 @@ const schema = makeExecutableSchema({ typeDefs, resolvers });
 
 interface GraphQLContext {
   authorization?: string;
+  lambdaContext?: unknown
 }
 
 const myPlugin = {
   async requestDidStart(requestContext) {
     console.log('=== Apollo Plugin - Request Started ===');
+    console.log('Request:', requestContext.request);
     console.log('Request operation:', requestContext.request.operationName);
-    console.log('Request headers:', JSON.stringify(requestContext.request.http?.headers, null, 2));
+    // Convert HeaderMap to object for logging
+    const headers = requestContext.request.http?.headers;
+    const headersObj = headers ? Object.fromEntries(headers) : {};
+    console.log('Request headers:', JSON.stringify(headersObj, null, 2));
     console.log('Context authorization:', requestContext.contextValue?.authorization);
   }
 };
@@ -33,20 +39,22 @@ const server = new ApolloServer<GraphQLContext>({
 
 export const graphqlHandler = startServerAndCreateLambdaHandler(
   server,
-  handlers.createAPIGatewayProxyEventV2RequestHandler({
-    context: async ({ event }) => {
-      // Handle both lowercase and capitalized authorization headers
-      // API Gateway v2 normalizes headers to lowercase, so check both
-      const authHeader = event.headers?.Authorization || event.headers?.authorization;
+  handlers.createAPIGatewayProxyEventV2RequestHandler(),
+  {
+    context: async ({ event, context }) => {
+      console.log('=== Context Function ===');
+      console.log('Event headers:', JSON.stringify(event.headers, null, 2));
 
-      // Debug logging
-      console.log('GraphQL Handler - All headers:', JSON.stringify(event.headers, null, 2));
-      console.log('GraphQL Handler - Authorization header value:', authHeader || 'NOT PRESENT');
-      console.log('GraphQL Handler - Event keys:', Object.keys(event));
+      // API Gateway v2 normalizes headers to lowercase
+      const authHeader = event.headers?.authorization || event.headers?.Authorization || '';
+      console.log('Auth header found:', authHeader ? 'YES' : 'NO');
+
+      const authorization = authHeader.replace('Bearer ', '');
 
       return {
-        authorization: authHeader,
-      };
+        authorization,
+        lambdaContext: context,
+      } satisfies GraphQLContext;
     },
-  }),
+  }
 );
