@@ -65,8 +65,17 @@ export class AuthStack extends cdk.Stack {
     // 3. Create the User Pool App Client
     const userPoolClient = this.userPool.addClient('PescadorAppClient', {
       userPoolClientName: `pescador-web-ui-${props.stage}`,
-      authFlows: { userPassword: true },
+      authFlows: {
+        userPassword: true,
+        userSrp: true, // Enable Secure Remote Password
+      },
       generateSecret: false,
+      // Token validity configuration
+      idTokenValidity: cdk.Duration.hours(24), // ID token valid for 24 hours
+      accessTokenValidity: cdk.Duration.hours(24), // Access token valid for 24 hours
+      refreshTokenValidity: cdk.Duration.days(30), // Refresh token valid for 30 days
+      // Enable token revocation
+      enableTokenRevocation: true,
     });
 
     // 3. Setup Lambda configuration with all environment variables upfront

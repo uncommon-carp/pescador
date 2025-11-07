@@ -12,6 +12,9 @@ const FUNCTION_ARN_MAP: Record<string, string> = {
   'createUserProfile': 'CREATE_PROFILE_FUNCTION_ARN',
   'updateUserProfile': 'UPDATE_PROFILE_FUNCTION_ARN',
   'getUserProfile': 'GET_PROFILE_FUNCTION_ARN',
+  'getWeatherByZip': 'GET_WEATHER_BY_ZIP_FUNCTION_ARN',
+  'getStationsByBox': 'GET_STATIONS_BY_BOX_FUNCTION_ARN',
+  'getStationById': 'GET_STATION_BY_ID_FUNCTION_ARN',
 };
 
 export const invokeServiceFunction = async <
