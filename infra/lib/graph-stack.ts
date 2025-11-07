@@ -18,6 +18,10 @@ interface GraphStackProps extends cdk.StackProps {
   getWeatherByZipFunctionArn: string;
   getStationsByBoxFunctionArn: string;
   getStationByIdFunctionArn: string;
+  addFavoriteStationFunctionArn: string;
+  removeFavoriteStationFunctionArn: string;
+  getFavoriteStationsFunctionArn: string;
+  getFavoriteStationsOrderedFunctionArn: string;
 }
 
 export class GraphStack extends cdk.Stack {
@@ -51,6 +55,12 @@ export class GraphStack extends cdk.Stack {
       GET_WEATHER_BY_ZIP_FUNCTION_ARN: props.getWeatherByZipFunctionArn,
       GET_STATIONS_BY_BOX_FUNCTION_ARN: props.getStationsByBoxFunctionArn,
       GET_STATION_BY_ID_FUNCTION_ARN: props.getStationByIdFunctionArn,
+
+      // Stations service Lambda function ARNs for invocation
+      ADD_FAVORITE_STATION_FUNCTION_ARN: props.addFavoriteStationFunctionArn,
+      REMOVE_FAVORITE_STATION_FUNCTION_ARN: props.removeFavoriteStationFunctionArn,
+      GET_FAVORITE_STATIONS_FUNCTION_ARN: props.getFavoriteStationsFunctionArn,
+      GET_FAVORITE_STATIONS_ORDERED_FUNCTION_ARN: props.getFavoriteStationsOrderedFunctionArn,
 
       // Service names for Lambda invocation
       PROFILE_SERVICE_NAME: 'pescador-profiles',

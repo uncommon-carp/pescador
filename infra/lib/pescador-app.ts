@@ -4,6 +4,7 @@ import { AuthStack } from './auth-stack';
 import { UserStack } from './user-stack';
 import { GraphStack } from './graph-stack';
 import { ConditionsStack } from './conditions-stack';
+import { StationsStack } from './stations-stack';
 
 export interface PescadorAppConfig {
   stage: string;
@@ -16,6 +17,7 @@ export class PescadorApp extends Construct {
   public readonly userStack: UserStack;
   public readonly graphStack: GraphStack;
   public readonly conditionsStack: ConditionsStack;
+  public readonly stationsStack: StationsStack;
 
   constructor(scope: Construct, id: string, config: PescadorAppConfig) {
     super(scope, id);
@@ -67,7 +69,24 @@ export class PescadorApp extends Construct {
       },
     });
 
-    // Create the GraphQL stack (depends on Auth, User, and Conditions stacks)
+    // Create the Stations stack (depends on Auth for Cognito config)
+    this.stationsStack = new StationsStack(this, `PescadorStationsStack-${config.stage}`, {
+      stage: config.stage,
+      env: stackEnv,
+      userPoolId: this.authStack.userPoolId,
+      userPoolClientId: this.authStack.userPoolClientId,
+      description: `Pescador Stations Service Stack - ${config.stage}`,
+      tags: {
+        Service: 'stations',
+        Stage: config.stage,
+        Project: 'Pescador',
+      },
+    });
+
+    // Stations stack depends on Auth for Cognito
+    this.stationsStack.addDependency(this.authStack);
+
+    // Create the GraphQL stack (depends on Auth, User, Conditions, and Stations stacks)
     this.graphStack = new GraphStack(this, `PescadorGraphStack-${config.stage}`, {
       stage: config.stage,
       env: stackEnv,
@@ -80,6 +99,10 @@ export class PescadorApp extends Construct {
       getWeatherByZipFunctionArn: this.conditionsStack.getWeatherByZipFn.functionArn,
       getStationsByBoxFunctionArn: this.conditionsStack.getStationsByBoxFn.functionArn,
       getStationByIdFunctionArn: this.conditionsStack.getStationByIdFn.functionArn,
+      addFavoriteStationFunctionArn: this.stationsStack.addFavoriteStationFn.functionArn,
+      removeFavoriteStationFunctionArn: this.stationsStack.removeFavoriteStationFn.functionArn,
+      getFavoriteStationsFunctionArn: this.stationsStack.getFavoriteStationsFn.functionArn,
+      getFavoriteStationsOrderedFunctionArn: this.stationsStack.getFavoriteStationsOrderedFn.functionArn,
       description: `Pescador GraphQL Service Stack - ${config.stage}`,
       tags: {
         Service: 'graph',
@@ -88,10 +111,11 @@ export class PescadorApp extends Construct {
       },
     });
 
-    // GraphStack depends on Auth, User, and Conditions stacks
+    // GraphStack depends on Auth, User, Conditions, and Stations stacks
     this.graphStack.addDependency(this.authStack);
     this.graphStack.addDependency(this.userStack);
     this.graphStack.addDependency(this.conditionsStack);
+    this.graphStack.addDependency(this.stationsStack);
   }
 
   // Method to get auth stack outputs for other stacks
