@@ -36,12 +36,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const tokens = getStoredTokens();
       if (tokens?.idToken) {
-        const userData = parseJWT(tokens.idToken);
-        setUser({
-          email: userData.email,
-          name: userData.name,
-          userSub: userData.sub,
-        });
+        // Check if token is expired
+        if (isTokenExpired(tokens.idToken)) {
+          console.log('Token expired, clearing stored tokens');
+          clearStoredTokens();
+          setUser(null);
+        } else {
+          const userData = parseJWT(tokens.idToken);
+          setUser({
+            email: userData.email,
+            name: userData.name,
+            userSub: userData.sub,
+          });
+        }
       }
     } catch (error) {
       console.error('Error checking auth state:', error);
@@ -213,4 +220,24 @@ function parseJWT(token: string) {
       .join('')
   );
   return JSON.parse(jsonPayload);
+}
+
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = parseJWT(token);
+    if (!payload.exp) return true;
+
+    // exp is in seconds, Date.now() is in milliseconds
+    const expirationTime = payload.exp * 1000;
+    const currentTime = Date.now();
+
+    // Consider token expired if it expires in less than 5 minutes
+    // This gives a small buffer to avoid edge cases
+    const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+    return currentTime >= (expirationTime - bufferTime);
+  } catch (error) {
+    // If we can't parse the token, consider it expired
+    return true;
+  }
 }
