@@ -81,7 +81,7 @@ export class GraphStack extends cdk.Stack {
           '@aws-sdk/client-dynamodb',
           '@aws-sdk/util-dynamodb',
           'jsonwebtoken',
-          'jwks-client',
+          'jwks-rsa',
         ],
         forceDockerBundling: false,
         commandHooks: {
