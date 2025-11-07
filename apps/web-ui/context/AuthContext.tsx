@@ -231,9 +231,9 @@ function isTokenExpired(token: string): boolean {
     const expirationTime = payload.exp * 1000;
     const currentTime = Date.now();
 
-    // Consider token expired if it expires in less than 5 minutes
-    // This gives a small buffer to avoid edge cases
-    const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
+    // Consider token expired if it expires in less than 1 minute
+    // Smaller buffer since we now have 24-hour tokens
+    const bufferTime = 1 * 60 * 1000; // 1 minute in milliseconds
 
     return currentTime >= (expirationTime - bufferTime);
   } catch (error) {

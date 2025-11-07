@@ -15,6 +15,9 @@ interface GraphStackProps extends cdk.StackProps {
   createProfileFunctionArn: string;
   updateProfileFunctionArn: string;
   getProfileFunctionArn: string;
+  getWeatherByZipFunctionArn: string;
+  getStationsByBoxFunctionArn: string;
+  getStationByIdFunctionArn: string;
 }
 
 export class GraphStack extends cdk.Stack {
@@ -35,15 +38,20 @@ export class GraphStack extends cdk.Stack {
       // Cognito configuration for JWT validation
       PESCADOR_COGNITO_USER_POOL_ID: props.userPoolId,
       PESCADOR_COGNITO_APP_ID: props.userPoolClientId,
-      
+
       // DynamoDB table for direct access if needed
       DYNAMODB_TABLE: props.userProfileTableName,
-      
+
       // Profile service Lambda function ARNs for invocation
       CREATE_PROFILE_FUNCTION_ARN: props.createProfileFunctionArn,
       UPDATE_PROFILE_FUNCTION_ARN: props.updateProfileFunctionArn,
       GET_PROFILE_FUNCTION_ARN: props.getProfileFunctionArn,
-      
+
+      // Conditions service Lambda function ARNs for invocation
+      GET_WEATHER_BY_ZIP_FUNCTION_ARN: props.getWeatherByZipFunctionArn,
+      GET_STATIONS_BY_BOX_FUNCTION_ARN: props.getStationsByBoxFunctionArn,
+      GET_STATION_BY_ID_FUNCTION_ARN: props.getStationByIdFunctionArn,
+
       // Service names for Lambda invocation
       PROFILE_SERVICE_NAME: 'pescador-profiles',
     };
