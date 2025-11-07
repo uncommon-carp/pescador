@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import jwksClient from 'jwks-client';
+import jwksRsa from 'jwks-rsa';
 import { AuthenticationError } from '@pescador/libs';
 
 interface CognitoJwtPayload extends jwt.JwtPayload {
@@ -23,21 +23,29 @@ if (!COGNITO_APP_CLIENT_ID) {
 
 const jwksUri = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/${COGNITO_USER_POOL_ID}/.well-known/jwks.json`;
 
-const client = jwksClient({
+const client = jwksRsa({
   jwksUri,
-  requestHeaders: {},
-  timeout: 30000,
   cache: true,
   cacheMaxEntries: 5,
+  cacheMaxAge: 600000,
 });
 
-function getKey(header: jwt.JwtHeader, callback: jwt.GetPublicKeyOrSecret) {
-  client.getSigningKey(header.kid!, (err, key) => {
+function getKey(header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) {
+  if (!header.kid) {
+    callback(new Error('No kid found in token header'));
+    return;
+  }
+
+  client.getSigningKey(header.kid, (err, key) => {
     if (err) {
       callback(err);
       return;
     }
-    const signingKey = key!.getPublicKey();
+    if (!key) {
+      callback(new Error('Unable to get signing key'));
+      return;
+    }
+    const signingKey = key.getPublicKey();
     callback(null, signingKey);
   });
 }
@@ -55,14 +63,14 @@ export async function validateJWT(token: string): Promise<string> {
       algorithms: ['RS256'],
       audience: COGNITO_APP_CLIENT_ID,
       issuer: `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/${COGNITO_USER_POOL_ID}`,
-    }, (err, decoded) => {
+    }, (err: jwt.VerifyErrors | null, decoded: string | jwt.JwtPayload | undefined) => {
       if (err) {
         reject(new AuthenticationError('Invalid or expired token'));
         return;
       }
 
       const payload = decoded as CognitoJwtPayload;
-      
+
       if (!payload.sub) {
         reject(new AuthenticationError('Token missing user subject'));
         return;
