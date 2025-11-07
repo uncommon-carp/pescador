@@ -38,13 +38,23 @@ export function Header() {
           <ul
             className={`text-stone-100 ${menuOpen ? 'flex flex-col items-center absolute top-16 right-4 bg-slate-900/95 backdrop-blur-md border border-emerald-700/40 p-4 rounded-lg shadow-xl space-y-2 md:relative md:top-0 md:right-0 md:bg-transparent md:border-0 md:p-0 md:shadow-none md:flex-row md:items-start md:space-y-0' : 'hidden'} md:flex md:space-x-6`}
           >
+            {user && (
+              <li>
+                <Link
+                  href="/dashboard"
+                  className="block py-1 hover:text-amber-400 transition-colors text-center md:text-left"
+                >
+                  Dashboard
+                </Link>
+              </li>
+            )}
             <li>
-              <a
-                href="#search"
+              <Link
+                href="/"
                 className="block py-1 hover:text-amber-400 transition-colors text-center md:text-left"
               >
                 Search
-              </a>
+              </Link>
             </li>
             <li>
               <a

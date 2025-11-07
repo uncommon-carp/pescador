@@ -49,8 +49,8 @@ export function FavoriteStations() {
 
   if (!user) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <p className="text-yellow-800">Please sign in to view your favorite stations.</p>
+      <div className="bg-amber-900/30 border border-amber-600/40 rounded-lg p-4 backdrop-blur-sm">
+        <p className="text-amber-200">Please sign in to view your favorite stations.</p>
       </div>
     );
   }
@@ -58,10 +58,10 @@ export function FavoriteStations() {
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+        <div className="h-6 bg-slate-700/40 rounded w-1/3"></div>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 bg-gray-200 rounded"></div>
+            <div key={i} className="h-16 bg-slate-700/40 rounded"></div>
           ))}
         </div>
       </div>
@@ -70,8 +70,8 @@ export function FavoriteStations() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">Error loading favorite stations: {error.message}</p>
+      <div className="bg-red-900/30 border border-red-600/40 rounded-lg p-4 backdrop-blur-sm">
+        <p className="text-red-200">Error loading favorite stations: {error.message}</p>
       </div>
     );
   }
@@ -117,15 +117,15 @@ export function FavoriteStations() {
   const stations = data?.favoriteStations || [];
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-slate-800/60 backdrop-blur-sm rounded-lg shadow-xl border border-emerald-700/40 p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
-          <FaStar className="text-2xl text-yellow-500" />
-          <h2 className="text-xl font-bold text-gray-900">Favorite Stations</h2>
+          <FaStar className="text-2xl text-amber-400" />
+          <h2 className="text-xl font-bold text-stone-100">Favorite Stations</h2>
         </div>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center space-x-2 px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition-colors"
+          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-700 text-white rounded-md hover:from-orange-500 hover:to-amber-600 transition-all shadow-lg"
         >
           <FaPlus />
           <span>Add Station</span>
@@ -133,38 +133,38 @@ export function FavoriteStations() {
       </div>
 
       {showAddForm && (
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
-          <h3 className="text-lg font-semibold mb-4">Add New Favorite Station</h3>
+        <div className="mb-6 p-4 bg-slate-700/30 rounded-lg border border-emerald-700/30">
+          <h3 className="text-lg font-semibold text-stone-100 mb-4">Add New Favorite Station</h3>
           <form onSubmit={handleAddStation} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-stone-300 mb-1">
                   Station ID *
                 </label>
                 <input
                   type="text"
                   value={newStation.stationId}
                   onChange={(e) => setNewStation(prev => ({ ...prev, stationId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-700/40 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
                   placeholder="e.g., 12345678"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-stone-300 mb-1">
                   Station Name *
                 </label>
                 <input
                   type="text"
                   value={newStation.stationName}
                   onChange={(e) => setNewStation(prev => ({ ...prev, stationName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-700/40 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
                   placeholder="e.g., Colorado River at Austin"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-stone-300 mb-1">
                   Latitude
                 </label>
                 <input
@@ -172,12 +172,12 @@ export function FavoriteStations() {
                   step="any"
                   value={newStation.lat}
                   onChange={(e) => setNewStation(prev => ({ ...prev, lat: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-700/40 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
                   placeholder="30.123456"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-stone-300 mb-1">
                   Longitude
                 </label>
                 <input
@@ -185,7 +185,7 @@ export function FavoriteStations() {
                   step="any"
                   value={newStation.lon}
                   onChange={(e) => setNewStation(prev => ({ ...prev, lon: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-700/40 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
                   placeholder="-97.123456"
                 />
               </div>
@@ -194,14 +194,14 @@ export function FavoriteStations() {
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="px-4 py-2 text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                className="px-4 py-2 text-stone-200 bg-slate-600 rounded-md hover:bg-slate-700 transition-colors shadow-lg"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={addingStation}
-                className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition-colors disabled:opacity-50"
+                className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors shadow-lg disabled:opacity-50"
               >
                 {addingStation ? 'Adding...' : 'Add Station'}
               </button>
@@ -212,12 +212,12 @@ export function FavoriteStations() {
 
       {stations.length === 0 ? (
         <div className="text-center py-12">
-          <FaStar className="mx-auto text-6xl text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No favorite stations yet</h3>
-          <p className="text-gray-500 mb-4">Add your first favorite station to get started!</p>
+          <FaStar className="mx-auto text-6xl text-slate-600 mb-4" />
+          <h3 className="text-lg font-medium text-stone-100 mb-2">No favorite stations yet</h3>
+          <p className="text-stone-300 mb-4">Add your first favorite station to get started!</p>
           <button
             onClick={() => setShowAddForm(true)}
-            className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition-colors"
+            className="px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-700 text-white rounded-md hover:from-orange-500 hover:to-amber-600 transition-all shadow-lg"
           >
             Add Your First Station
           </button>
@@ -227,31 +227,31 @@ export function FavoriteStations() {
           {stations.map((station) => (
             <div
               key={station.stationId}
-              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between p-4 border border-emerald-700/40 bg-slate-700/30 rounded-lg hover:bg-slate-700/50 transition-colors"
             >
               <div className="flex-1">
                 <div className="flex items-center space-x-3">
-                  <FaStar className="text-yellow-500" />
+                  <FaStar className="text-amber-400" />
                   <div>
-                    <h4 className="font-medium text-gray-900">{station.stationName}</h4>
-                    <p className="text-sm text-gray-500">ID: {station.stationId}</p>
+                    <h4 className="font-medium text-stone-100">{station.stationName}</h4>
+                    <p className="text-sm text-stone-400">ID: {station.stationId}</p>
                   </div>
                 </div>
                 {(station.lat || station.lon) && (
-                  <div className="mt-2 flex items-center text-sm text-gray-600">
+                  <div className="mt-2 flex items-center text-sm text-stone-300">
                     <FaMapMarkerAlt className="mr-1" />
                     <span>
                       {station.lat?.toFixed(4)}, {station.lon?.toFixed(4)}
                     </span>
                   </div>
                 )}
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-stone-400 mt-1">
                   Added: {new Date(station.dateAdded).toLocaleDateString()}
                 </p>
               </div>
               <button
                 onClick={() => handleRemoveStation(station.stationId)}
-                className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
+                className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-md transition-colors"
                 title="Remove from favorites"
               >
                 <FaTrash />

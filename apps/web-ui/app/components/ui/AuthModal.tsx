@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../context/AuthContext';
 
 interface AuthModalProps {
@@ -9,6 +10,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const router = useRouter();
   const [mode, setMode] = useState<'signin' | 'signup' | 'confirm'>('signin');
   const [formData, setFormData] = useState({
     email: '',
@@ -33,6 +35,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       if (mode === 'signin') {
         await signIn(formData.email, formData.password);
         onClose();
+        router.push('/dashboard');
       } else if (mode === 'signup') {
         const result = await signUp(
           formData.email,
