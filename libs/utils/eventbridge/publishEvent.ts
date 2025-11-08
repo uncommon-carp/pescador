@@ -22,8 +22,7 @@ export const publishEvent = async (
   });
 
   try {
-    const response = await eventBridgeClient.send(putEventsCommand);
-    console.log('Event published to default EventBridge:', response);
+    await eventBridgeClient.send(putEventsCommand);
   } catch (error) {
     console.error('Failed to publish event to default EventBridge:', error);
     throw error;

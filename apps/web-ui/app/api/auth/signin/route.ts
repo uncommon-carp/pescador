@@ -4,9 +4,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const authUrl = process.env.AUTH_SERVICE_URL;
-    
-    console.log('AUTH_SERVICE_URL:', authUrl);
-    console.log('Request body:', body);
 
     if (!authUrl) {
       console.error('AUTH_SERVICE_URL is not set');
@@ -16,10 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const fullUrl = `${authUrl}/sign-in`;
-    console.log('Making request to:', fullUrl);
-
-    const response = await fetch(fullUrl, {
+    const response = await fetch(`${authUrl}/sign-in`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -27,10 +21,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    console.log('Response status:', response.status);
-    
     const data = await response.json();
-    console.log('Response data:', data);
 
     if (!response.ok) {
       return NextResponse.json(
