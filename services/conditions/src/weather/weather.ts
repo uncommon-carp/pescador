@@ -15,8 +15,6 @@ export async function getWeatherByZip(
 ): Promise<CurrentWeather> {
   const apiKey = process.env.OPEN_WEATHER_API_KEY;
 
-  console.log('getWeatherByZip - Raw event:', JSON.stringify(event));
-
   // Parse event.body if it's a Lambda event, otherwise use input directly
   let input: GetWeatherInput;
   if (event.body && typeof event.body === 'string') {

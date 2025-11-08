@@ -36,9 +36,6 @@ export const invokeServiceFunction = async <
     ? process.env[envKey]
     : `${serviceName}-dev-${functionName}`;
 
-  console.log(`Invoking Lambda: ${functionIdentifier}`);
-  console.log(`Input: ${JSON.stringify(input)}`);
-
   // Wrap input in the expected Lambda event format (simulating API Gateway)
   const lambdaEvent = {
     body: JSON.stringify(input),
@@ -51,12 +48,7 @@ export const invokeServiceFunction = async <
   });
   const response = await client.send(command);
 
-  console.log(`Lambda response status: ${response.StatusCode}`);
-  console.log(`Lambda FunctionError: ${response.FunctionError || 'none'}`);
-
   const payloadString = new TextDecoder('utf-8').decode(response.Payload);
-  console.log(`Lambda payload: ${payloadString}`);
-
   const parsedResponse = JSON.parse(payloadString);
 
   // If the Lambda returned an error, throw it

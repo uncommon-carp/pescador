@@ -2,20 +2,17 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { gql, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
-// This is a placeholder type. Replace with your actual type definition if available.
+import apolloClient from '../lib/apolloClient';
+import { convertMmHgToInHg } from '@/lib/mmhgToInHg';
+import { Header } from './components/ui/Header';
+import { useAuth } from '../context/AuthContext';
+
 interface SingleStation {
   usgsId: string;
   name: string;
   flowRate?: string | null;
   gageHt?: string | null;
 }
-// Assuming apolloClient and convertMmHgToInHg are correctly set up in these paths
-import apolloClient from '../lib/apolloClient';
-import { convertMmHgToInHg } from '@/lib/mmhgToInHg';
-import { Header } from './components/ui/Header';
-import { useAuth } from '../context/AuthContext';
-
-// Existing Query for Bulk Stations and Weather
 const GET_DATA_QUERY = gql`
   query GetStationAndWeather($zip: String!) {
     bulkStation(zip: $zip) {
@@ -43,7 +40,6 @@ const GET_DATA_QUERY = gql`
   }
 `;
 
-// UPDATED Query for Single Station History (to match your backend)
 const GET_STATION_HISTORY_QUERY = gql`
   query GetStationHistory($id: String!, $range: Int!) {
     station(id: $id, range: $range) {
@@ -63,7 +59,6 @@ const GET_STATION_HISTORY_QUERY = gql`
   }
 `;
 
-// Mutation to add a station to favorites
 const ADD_FAVORITE_STATION = gql`
   mutation AddFavoriteStation($input: AddFavoriteStationInput!) {
     addFavoriteStation(input: $input) {
@@ -73,7 +68,6 @@ const ADD_FAVORITE_STATION = gql`
   }
 `;
 
-// Mutation to remove a station from favorites
 const REMOVE_FAVORITE_STATION = gql`
   mutation RemoveFavoriteStation($input: RemoveFavoriteStationInput!) {
     removeFavoriteStation(input: $input) {
@@ -87,65 +81,40 @@ function HomePageContent() {
   const { user } = useAuth();
   const [zipcode, setZipcode] = useState<string>('');
   const [submittedZip, setSubmittedZip] = useState<string | null>(null);
-
-  // State for managing the history pop-up visibility
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
-
-  // State for tracking favorited stations
   const [favoritedStations, setFavoritedStations] = useState<Set<string>>(new Set());
-
-  // Bulk data query
   const [getData, { loading, error, data }] = useLazyQuery(GET_DATA_QUERY, {
-    onCompleted: (queryData) => {
-      console.log('Bulk Query completed successfully:', queryData);
-    },
     onError: (queryError) => {
       console.error('An error occurred during the bulk query:', queryError);
     },
   });
 
-  // Lazy query for single station history
   const [
     getStationHistory,
     { loading: historyLoading, error: historyError, data: historyData },
   ] = useLazyQuery(GET_STATION_HISTORY_QUERY, {
-    onCompleted: (queryData) => {
-      console.log('History Query completed successfully:', queryData);
-      console.log('History Data Values Structure:', queryData?.station?.values);
-      setIsHistoryModalOpen(true); // Open modal on successful fetch
+    onCompleted: () => {
+      setIsHistoryModalOpen(true);
     },
     onError: (queryError) => {
       console.error('An error occurred during the history query:', queryError);
-      setIsHistoryModalOpen(true); // Still open modal to show error
+      setIsHistoryModalOpen(true);
     },
   });
-
-  // Mutations for favoriting stations
   const [addFavoriteStation] = useMutation(ADD_FAVORITE_STATION, {
-    onCompleted: (data) => {
-      if (data.addFavoriteStation.success) {
-        console.log('Station added to favorites:', data.addFavoriteStation.message);
-      }
-    },
     onError: (error) => {
       console.error('Error adding station to favorites:', error);
     },
   });
 
   const [removeFavoriteStation] = useMutation(REMOVE_FAVORITE_STATION, {
-    onCompleted: (data) => {
-      if (data.removeFavoriteStation.success) {
-        console.log('Station removed from favorites:', data.removeFavoriteStation.message);
-      }
-    },
     onError: (error) => {
       console.error('Error removing station from favorites:', error);
     },
   });
 
-  // Handler to toggle favorite status
   const handleToggleFavorite = async (station: SingleStation, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent triggering station click
+    event.stopPropagation();
 
     if (!user) {
       alert('Please sign in to favorite stations');
@@ -156,7 +125,6 @@ function HomePageContent() {
 
     try {
       if (isFavorited) {
-        // Remove from favorites
         await removeFavoriteStation({
           variables: {
             input: {
@@ -171,7 +139,6 @@ function HomePageContent() {
           return newSet;
         });
       } else {
-        // Add to favorites
         await addFavoriteStation({
           variables: {
             input: {
@@ -192,7 +159,6 @@ function HomePageContent() {
 
   useEffect(() => {
     if (submittedZip) {
-      console.log('useEffect triggered. Calling getData with:', submittedZip);
       getData({ variables: { zip: submittedZip } });
     }
   }, [submittedZip, getData]);
@@ -207,16 +173,13 @@ function HomePageContent() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!/^\d{5}$/.test(zipcode)) {
-      // Potentially add visual feedback for invalid zip code
       return;
     }
     setSubmittedZip(zipcode);
-    setZipcode(''); // Clear input after submission
+    setZipcode('');
   };
 
-  // Function to handle station click and fetch history
   const handleStationClick = (usgsId: string) => {
-    // Fetch last 7 days of data for the clicked station
     getStationHistory({ variables: { id: usgsId, range: 7 } });
   };
 
@@ -224,25 +187,19 @@ function HomePageContent() {
     setIsHistoryModalOpen(false);
   };
 
-  // *** FIXED *** Helper to format timestamp from an ISO string
   const formatTimestamp = (timestamp: string) => {
-    // The new Date() constructor can directly parse ISO 8601 strings
     const date = new Date(timestamp);
-    // Check if the date is valid
     if (isNaN(date.getTime())) {
       return 'Invalid Date';
     }
     return date.toLocaleDateString();
   };
-
-  // *** REFINED *** Memoized data processing for historical records
   const historicalRecords = useMemo(() => {
     if (!historyData?.station?.values) return [];
 
     const flowData = historyData.station.values.flow || [];
     const gageData = historyData.station.values.gage || [];
 
-    // Combine all data points into one map with the timestamp as the key
     const dataMap = new Map<
       string,
       { flowValue: string | null; gageValue: string | null }
@@ -264,11 +221,9 @@ function HomePageContent() {
       dataMap.get(item.timestamp)!.gageValue = item.value;
     });
 
-    // Convert the map to an array, sort by date, and return
     return (
       Array.from(dataMap.entries())
         .map(([timestamp, values]) => ({ timestamp, ...values }))
-        // *** FIXED *** Sort by creating Date objects from the ISO strings
         .sort(
           (a, b) =>
             new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),

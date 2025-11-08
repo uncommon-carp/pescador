@@ -38,7 +38,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (tokens?.idToken) {
         // Check if token is expired
         if (isTokenExpired(tokens.idToken)) {
-          console.log('Token expired, clearing stored tokens');
           clearStoredTokens();
           setUser(null);
         } else {

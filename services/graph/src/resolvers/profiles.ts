@@ -26,9 +26,6 @@ export const createUserProfileResolver = async (
   { input }: { input: CreateUserProfileInput },
   context: GraphQLContext,
 ): Promise<ProfileOperationResult> => {
-  console.log('createUserProfileResolver - context:', context);
-  console.log('createUserProfileResolver - authorization:', context.authorization);
-
   if (!context.authorization) {
     throw new Error('Authorization header is required');
   }
@@ -70,9 +67,6 @@ export const updateUserProfileResolver = async (
   { input }: { input: UpdateUserProfileInput },
   context: GraphQLContext,
 ): Promise<ProfileOperationResult> => {
-  console.log('updateUserProfileResolver - context:', context);
-  console.log('updateUserProfileResolver - authorization:', context.authorization);
-
   if (!context.authorization) {
     throw new Error('Authorization header is required');
   }
@@ -97,15 +91,11 @@ export const updateUserProfileResolver = async (
       idToken: context.authorization,
     };
 
-    console.log('updateUserProfileResolver - invoking service with input:', JSON.stringify(serviceInput));
-
     const serviceResp = await invokeServiceFunction<UpdateUserProfileFunction>(
       'pescador-profiles',
       'updateUserProfile',
       serviceInput,
     );
-
-    console.log('updateUserProfileResolver - service response:', JSON.stringify(serviceResp));
 
     // Convert service response to GraphQL response
     return {
@@ -126,10 +116,6 @@ export const getUserProfileResolver = async (
   { userSub }: { userSub: string },
   context: GraphQLContext,
 ): Promise<UserProfile | null> => {
-  console.log('getUserProfileResolver - context:', context);
-  console.log('getUserProfileResolver - authorization:', context.authorization);
-  console.log('getUserProfileResolver - userSub:', userSub);
-
   if (!context.authorization) {
     throw new Error('Authorization header is required');
   }

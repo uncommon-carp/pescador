@@ -223,8 +223,6 @@ export async function handleSignOut(event: APIGatewayProxyEvent): Promise<APIGat
  * This is where you can create a corresponding user profile in your own database.
  */
 export async function postConfirmation(event: PostConfirmationTriggerEvent) {
-  console.log('PostConfirmation Trigger:', event);
-
   try {
     const { email, name } = event.request.userAttributes;
     const { userName: userSub } = event; // In post-confirmation, userName is the user's UUID (sub)
