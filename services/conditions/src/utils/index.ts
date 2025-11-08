@@ -4,3 +4,4 @@ export * from './siteReducer';
 export * from './stationSort';
 export * from './getClouds';
 export * from './getWindDirection';
+export * from './parseLambdaEvent';

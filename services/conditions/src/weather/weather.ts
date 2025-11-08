@@ -1,32 +1,16 @@
 import { OpenWeatherResponse, CurrentWeather } from '@pescador/libs';
 import axios from 'axios';
-import { getClouds, getWindDirection, getZipCoords } from '../utils';
+import { getClouds, getWindDirection, getZipCoords, parseLambdaEvent } from '../utils';
 
 interface GetWeatherInput {
   zip: string;
-}
-
-interface LambdaEvent {
-  body: string;
 }
 
 export async function getWeatherByZip(
   event: any,
 ): Promise<CurrentWeather> {
   const apiKey = process.env.OPEN_WEATHER_API_KEY;
-
-  // Parse event.body if it's a Lambda event, otherwise use input directly
-  let input: GetWeatherInput;
-  if (event.body && typeof event.body === 'string') {
-    input = JSON.parse(event.body);
-  } else if (event.body && typeof event.body === 'object') {
-    input = event.body;
-  } else if (event.zip) {
-    input = event;
-  } else {
-    throw new Error('Invalid event format - no zip code found');
-  }
-
+  const input = parseLambdaEvent<GetWeatherInput>(event, 'zip');
   const { zip } = input;
   const result = await getZipCoords(zip);
   const { lat, lng } = result;

@@ -4,6 +4,7 @@ import {
   getZipCoords,
   siteReducer,
   stationSort,
+  parseLambdaEvent,
 } from '../utils';
 import { UsgsResponse, BulkStation, StationWithRange } from '@pescador/libs';
 
@@ -16,27 +17,12 @@ interface GetStationByIdInput {
   range: number;
 }
 
-interface LambdaEvent {
-  body: string;
-}
-
 const url = 'http://waterservices.usgs.gov/nwis/iv';
 
 export const getStationsByBox = async (
   event: any,
 ): Promise<BulkStation> => {
-  // Parse event.body if it's a Lambda event, otherwise use input directly
-  let input: GetStationsByBoxInput;
-  if (event.body && typeof event.body === 'string') {
-    input = JSON.parse(event.body);
-  } else if (event.body && typeof event.body === 'object') {
-    input = event.body;
-  } else if (event.zip) {
-    input = event;
-  } else {
-    throw new Error('Invalid event format - no zip code found');
-  }
-
+  const input = parseLambdaEvent<GetStationsByBoxInput>(event, 'zip');
   const { zip } = input;
 
   if (!zip) {
@@ -67,18 +53,7 @@ export const getStationsByBox = async (
 export const getStationById = async (
   event: any,
 ): Promise<StationWithRange> => {
-  // Parse event.body if it's a Lambda event, otherwise use input directly
-  let input: GetStationByIdInput;
-  if (event.body && typeof event.body === 'string') {
-    input = JSON.parse(event.body);
-  } else if (event.body && typeof event.body === 'object') {
-    input = event.body;
-  } else if (event.id) {
-    input = event;
-  } else {
-    throw new Error('Invalid event format - no id found');
-  }
-
+  const input = parseLambdaEvent<GetStationByIdInput>(event, 'id');
   const { id, range } = input;
   const params = {
     format: 'json',
