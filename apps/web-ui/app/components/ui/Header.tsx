@@ -22,7 +22,7 @@ export function Header() {
 
   return (
     <>
-      <nav className="w-full bg-slate-900/90 backdrop-blur-md border-b border-emerald-700/30 p-4 flex justify-between items-center shadow-lg">
+      <nav className="w-full bg-slate-900/90 backdrop-blur-md border-b border-emerald-700/30 p-4 flex justify-between items-center shadow-lg relative z-[1000]">
         <Link href="/" className="text-2xl font-bold text-stone-100 hover:text-amber-400 transition-colors">
           pescador.io
         </Link>
@@ -36,7 +36,7 @@ export function Header() {
           </button>
 
           <ul
-            className={`text-stone-100 ${menuOpen ? 'flex flex-col items-center absolute top-16 right-4 bg-slate-900/95 backdrop-blur-md border border-emerald-700/40 p-4 rounded-lg shadow-xl space-y-2 md:relative md:top-0 md:right-0 md:bg-transparent md:border-0 md:p-0 md:shadow-none md:flex-row md:items-start md:space-y-0' : 'hidden'} md:flex md:space-x-6`}
+            className={`text-stone-100 ${menuOpen ? 'flex flex-col items-center absolute top-16 right-4 bg-slate-900/95 backdrop-blur-md border border-emerald-700/40 p-4 rounded-lg shadow-xl space-y-2 z-100 md:relative md:top-0 md:right-0 md:bg-transparent md:border-0 md:p-0 md:shadow-none md:flex-row md:items-start md:space-y-0 md:z-auto' : 'hidden'} md:flex md:space-x-6`}
           >
             {user && (
               <li>
@@ -85,7 +85,7 @@ export function Header() {
               </button>
 
               {profileMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-slate-800 border border-emerald-700/40 rounded-lg shadow-xl py-1 z-50 backdrop-blur-md">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-slate-800 border border-emerald-700/40 rounded-lg shadow-xl py-1 z-[200] backdrop-blur-md">
                   <div className="px-4 py-2 text-sm text-stone-200 border-b border-emerald-700/30">
                     {user.name}
                   </div>
