@@ -7,6 +7,7 @@ import { Header } from '../components/ui/Header';
 import { useAuth } from '../../context/AuthContext';
 import { convertMmHgToInHg } from '@/lib/mmhgToInHg';
 import { useRouter } from 'next/navigation';
+import { StationListItem, Station } from '../components/ui/StationListItem';
 import {
   GET_STATION_QUERY,
   GET_WEATHER_QUERY,
@@ -39,15 +40,6 @@ interface FavoriteStation {
   lat?: number;
   lon?: number;
   dateAdded: string;
-}
-
-interface SingleStation {
-  usgsId: string;
-  name: string;
-  flowRate?: string | null;
-  gageHt?: string | null;
-  lat?: number;
-  lon?: number;
 }
 
 // Separate component for each favorite station card
@@ -105,6 +97,7 @@ function DashboardContent() {
   const router = useRouter();
   const [searchZip, setSearchZip] = useState<string>('');
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [favoritedStationIds, setFavoritedStationIds] = useState<Set<string>>(new Set());
 
   // Redirect if not logged in
   useEffect(() => {
@@ -125,6 +118,12 @@ function DashboardContent() {
     {
       variables: { userSub: user?.userSub || '' },
       skip: !user?.userSub,
+      onCompleted: (data) => {
+        if (data?.favoriteStations) {
+          const ids = new Set<string>(data.favoriteStations.map((f: FavoriteStation) => f.stationId));
+          setFavoritedStationIds(ids);
+        }
+      },
     }
   );
 
@@ -162,6 +161,19 @@ function DashboardContent() {
     }
     searchStations({ variables: { zip: searchZip } });
     setShowSearchResults(true);
+  };
+
+  // Handle favorite toggle
+  const handleFavoriteToggle = (stationId: string, isFavorited: boolean) => {
+    setFavoritedStationIds((prev) => {
+      const newSet = new Set(prev);
+      if (isFavorited) {
+        newSet.add(stationId);
+      } else {
+        newSet.delete(stationId);
+      }
+      return newSet;
+    });
   };
 
   // Combine search results
@@ -331,42 +343,13 @@ function DashboardContent() {
                       Search Results
                     </h3>
                     <ul className="space-y-3">
-                      {searchResults.map((station: SingleStation) => (
-                        <li
+                      {searchResults.map((station: Station) => (
+                        <StationListItem
                           key={`${station.name}-${station.usgsId}`}
-                          className="rounded-lg border border-emerald-700/40 bg-slate-800/60 backdrop-blur-sm p-4 shadow-lg hover:shadow-xl hover:border-orange-600/60 hover:bg-slate-800/80 transition-all duration-200"
-                        >
-                          <div className="flex justify-between items-start gap-3">
-                            <div className="flex-grow">
-                              <p className="font-semibold text-stone-100">
-                                {station.name}
-                              </p>
-                              <p className="text-sm text-stone-400">
-                                ID: {station.usgsId}
-                              </p>
-                            </div>
-                            <div className="text-right text-sm flex-shrink-0">
-                              {station.flowRate && (
-                                <p className="text-stone-200">
-                                  Flow:{' '}
-                                  <span className="font-bold text-amber-400">
-                                    {station.flowRate}
-                                  </span>{' '}
-                                  cfs
-                                </p>
-                              )}
-                              {station.gageHt && (
-                                <p className="text-stone-200">
-                                  Height:{' '}
-                                  <span className="font-bold text-amber-400">
-                                    {station.gageHt}
-                                  </span>{' '}
-                                  ft
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </li>
+                          station={station}
+                          isFavorited={favoritedStationIds.has(station.usgsId)}
+                          onFavoriteToggle={handleFavoriteToggle}
+                        />
                       ))}
                     </ul>
                   </div>
