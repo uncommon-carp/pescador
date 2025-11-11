@@ -1,5 +1,6 @@
 import {
   getStationByIdResolver,
+  getStationFuzzyResolver,
   getStationsByBoxResolver,
   getWeatherByZipResolver,
 } from './conditions';
@@ -21,6 +22,7 @@ export function getResolvers() {
       weather: getWeatherByZipResolver,
       bulkStation: getStationsByBoxResolver,
       station: getStationByIdResolver,
+      fuzzySearch: getStationFuzzyResolver,
       favoriteStations: getFavoriteStationsResolver,
       userProfile: getUserProfileResolver,
     },

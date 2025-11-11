@@ -1,4 +1,4 @@
-import { BulkStation, CurrentWeather } from '../graph';
+import { BulkStation, CurrentWeather, FuzzySearchResult } from '../graph';
 
 export interface GetWeatherByZipFunction {
   serviceName: 'pescador-conditions';
@@ -19,4 +19,11 @@ export interface GetStationByIdFunction {
   functionName: 'getStationById';
   input: { id: string; range: number };
   output: BulkStation;
+}
+
+export interface GetStationFuzzyFunction {
+  serviceName: 'pescador-conditions';
+  functionName: 'getStationFuzzy';
+  input: { userInput: string };
+  output: FuzzySearchResult;
 }

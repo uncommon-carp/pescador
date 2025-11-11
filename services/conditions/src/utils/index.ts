@@ -1,4 +1,4 @@
-export * from './getZipCoords';
+export * from './getLocationCoords';
 export * from './getBoundingBox';
 export * from './siteReducer';
 export * from './stationSort';
