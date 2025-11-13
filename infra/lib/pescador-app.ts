@@ -99,6 +99,7 @@ export class PescadorApp extends Construct {
       getWeatherByZipFunctionArn: this.conditionsStack.getWeatherByZipFn.functionArn,
       getStationsByBoxFunctionArn: this.conditionsStack.getStationsByBoxFn.functionArn,
       getStationByIdFunctionArn: this.conditionsStack.getStationByIdFn.functionArn,
+      getStationFuzzyFunctionArn: this.conditionsStack.getStationFuzzyFn.functionArn,
       addFavoriteStationFunctionArn: this.stationsStack.addFavoriteStationFn.functionArn,
       removeFavoriteStationFunctionArn: this.stationsStack.removeFavoriteStationFn.functionArn,
       getFavoriteStationsFunctionArn: this.stationsStack.getFavoriteStationsFn.functionArn,

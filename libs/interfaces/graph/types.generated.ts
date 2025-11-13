@@ -77,6 +77,13 @@ export type FavoriteStation = {
 
 export type FuzzySearchResult = BulkStation | MultiLocationResponse;
 
+export type LocationOption = {
+  county: Scalars['String']['output'];
+  display: Scalars['String']['output'];
+  lat: Scalars['Float']['output'];
+  lon: Scalars['Float']['output'];
+};
+
 export type MapQuestCoords = {
   lat?: Maybe<Scalars['Float']['output']>;
   lng?: Maybe<Scalars['Float']['output']>;
@@ -92,7 +99,7 @@ export type MapQuestLocation = {
 export type MultiLocationResponse = {
   lat?: Maybe<Scalars['Float']['output']>;
   lon?: Maybe<Scalars['Float']['output']>;
-  options?: Maybe<Array<Maybe<MapQuestLocation>>>;
+  options?: Maybe<Array<Maybe<LocationOption>>>;
   type: Scalars['String']['output'];
 };
 
@@ -147,6 +154,11 @@ export type QueryBulkStationArgs = {
 
 export type QueryFavoriteStationsArgs = {
   userSub: Scalars['String']['input'];
+};
+
+
+export type QueryFuzzySearchArgs = {
+  userInput: Scalars['String']['input'];
 };
 
 
@@ -326,6 +338,7 @@ export type ResolversTypes = {
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   FuzzySearchResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FuzzySearchResult']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  LocationOption: ResolverTypeWrapper<LocationOption>;
   MapQuestCoords: ResolverTypeWrapper<MapQuestCoords>;
   MapQuestLocation: ResolverTypeWrapper<MapQuestLocation>;
   MultiLocationResponse: ResolverTypeWrapper<MultiLocationResponse>;
@@ -360,6 +373,7 @@ export type ResolversParentTypes = {
   Float: Scalars['Float']['output'];
   FuzzySearchResult: ResolversUnionTypes<ResolversParentTypes>['FuzzySearchResult'];
   Int: Scalars['Int']['output'];
+  LocationOption: LocationOption;
   MapQuestCoords: MapQuestCoords;
   MapQuestLocation: MapQuestLocation;
   MultiLocationResponse: MultiLocationResponse;
@@ -424,6 +438,14 @@ export type FuzzySearchResultResolvers<ContextType = any, ParentType extends Res
   __resolveType: TypeResolveFn<'BulkStation' | 'MultiLocationResponse', ParentType, ContextType>;
 };
 
+export type LocationOptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['LocationOption'] = ResolversParentTypes['LocationOption']> = {
+  county?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  display?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lat?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  lon?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MapQuestCoordsResolvers<ContextType = any, ParentType extends ResolversParentTypes['MapQuestCoords'] = ResolversParentTypes['MapQuestCoords']> = {
   lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   lng?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -441,7 +463,7 @@ export type MapQuestLocationResolvers<ContextType = any, ParentType extends Reso
 export type MultiLocationResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['MultiLocationResponse'] = ResolversParentTypes['MultiLocationResponse']> = {
   lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   lon?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
-  options?: Resolver<Maybe<Array<Maybe<ResolversTypes['MapQuestLocation']>>>, ParentType, ContextType>;
+  options?: Resolver<Maybe<Array<Maybe<ResolversTypes['LocationOption']>>>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -462,7 +484,7 @@ export type ProfileOperationResultResolvers<ContextType = any, ParentType extend
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   bulkStation?: Resolver<Maybe<ResolversTypes['BulkStation']>, ParentType, ContextType, RequireFields<QueryBulkStationArgs, 'zip'>>;
   favoriteStations?: Resolver<Array<ResolversTypes['FavoriteStation']>, ParentType, ContextType, RequireFields<QueryFavoriteStationsArgs, 'userSub'>>;
-  fuzzySearch?: Resolver<Maybe<ResolversTypes['FuzzySearchResult']>, ParentType, ContextType>;
+  fuzzySearch?: Resolver<Maybe<ResolversTypes['FuzzySearchResult']>, ParentType, ContextType, RequireFields<QueryFuzzySearchArgs, 'userInput'>>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   station?: Resolver<Maybe<ResolversTypes['StationWithRange']>, ParentType, ContextType, RequireFields<QueryStationArgs, 'id' | 'range'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -542,6 +564,7 @@ export type Resolvers<ContextType = any> = {
   DateTime?: GraphQLScalarType;
   FavoriteStation?: FavoriteStationResolvers<ContextType>;
   FuzzySearchResult?: FuzzySearchResultResolvers<ContextType>;
+  LocationOption?: LocationOptionResolvers<ContextType>;
   MapQuestCoords?: MapQuestCoordsResolvers<ContextType>;
   MapQuestLocation?: MapQuestLocationResolvers<ContextType>;
   MultiLocationResponse?: MultiLocationResponseResolvers<ContextType>;

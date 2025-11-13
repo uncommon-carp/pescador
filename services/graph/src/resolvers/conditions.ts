@@ -11,7 +11,7 @@ import { invokeServiceFunction } from '../utils';
 export const getWeatherByZipResolver = async (
   _: unknown,
   input: { zip: string },
-): Promise<CurrentWeather> => {
+): Promise<CurrentWeather | null> => {
   const resp = await invokeServiceFunction<GetWeatherByZipFunction>(
     'pescador-conditions',
     'getWeatherByZip',

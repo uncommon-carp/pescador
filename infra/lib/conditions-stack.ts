@@ -13,6 +13,7 @@ export class ConditionsStack extends cdk.Stack {
   public readonly getWeatherByZipFn: lambda.NodejsFunction;
   public readonly getStationsByBoxFn: lambda.NodejsFunction;
   public readonly getStationByIdFn: lambda.NodejsFunction;
+  public readonly getStationFuzzyFn: lambda.NodejsFunction;
 
   constructor(scope: Construct, id: string, props: ConditionsStackProps) {
     super(scope, id, props);
@@ -100,7 +101,29 @@ export class ConditionsStack extends cdk.Stack {
       bundling: commonBundlingOptions,
     });
 
-    // 5. Outputs
+    // 5. Create getStationFuzzy Lambda function
+    const stationFuzzyFunctionName = `${cdk.Stack.of(this).stackName}-GetStationFuzzy`;
+    const stationFuzzyLogGroup = new logs.LogGroup(this, 'StationFuzzyLogGroup', {
+      logGroupName: `/aws/lambda/${stationFuzzyFunctionName}`,
+      retention: logs.RetentionDays.ONE_WEEK,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    this.getStationFuzzyFn = new lambda.NodejsFunction(this, 'GetStationFuzzy', {
+      runtime: Runtime.NODEJS_18_X,
+      projectRoot: monorepoRoot,
+      depsLockFilePath: path.join(monorepoRoot, 'package-lock.json'),
+      entry: path.join(monorepoRoot, 'services/conditions/src/water/water.ts'),
+      handler: 'getStationFuzzy',
+      environment: lambdaEnv,
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 1024,
+      functionName: stationFuzzyFunctionName,
+      logGroup: stationFuzzyLogGroup,
+      bundling: commonBundlingOptions,
+    });
+
+    // 6. Outputs
     new cdk.CfnOutput(this, 'GetWeatherByZipFunctionName', {
       value: this.getWeatherByZipFn.functionName,
       description: 'Get Weather By Zip Lambda function name',
@@ -135,6 +158,18 @@ export class ConditionsStack extends cdk.Stack {
       value: this.getStationByIdFn.functionArn,
       description: 'Get Station By Id Lambda function ARN',
       exportName: `PescadorConditions-StationByIdFunctionArn-${props.stage}`,
+    });
+
+    new cdk.CfnOutput(this, 'GetStationFuzzyFunctionName', {
+      value: this.getStationFuzzyFn.functionName,
+      description: 'Get Station Fuzzy Lambda function name',
+      exportName: `PescadorConditions-StationFuzzyFunctionName-${props.stage}`,
+    });
+
+    new cdk.CfnOutput(this, 'GetStationFuzzyFunctionArn', {
+      value: this.getStationFuzzyFn.functionArn,
+      description: 'Get Station Fuzzy Lambda function ARN',
+      exportName: `PescadorConditions-StationFuzzyFunctionArn-${props.stage}`,
     });
   }
 }

@@ -15,6 +15,7 @@ const FUNCTION_ARN_MAP: Record<string, string> = {
   'getWeatherByZip': 'GET_WEATHER_BY_ZIP_FUNCTION_ARN',
   'getStationsByBox': 'GET_STATIONS_BY_BOX_FUNCTION_ARN',
   'getStationById': 'GET_STATION_BY_ID_FUNCTION_ARN',
+  'getStationFuzzy': 'GET_STATION_FUZZY_FUNCTION_ARN',
   'addFavoriteStation': 'ADD_FAVORITE_STATION_FUNCTION_ARN',
   'removeFavoriteStation': 'REMOVE_FAVORITE_STATION_FUNCTION_ARN',
   'getFavoriteStations': 'GET_FAVORITE_STATIONS_FUNCTION_ARN',

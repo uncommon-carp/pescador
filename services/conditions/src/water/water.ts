@@ -89,13 +89,18 @@ export const getStationById = async (
 
 export const getStationFuzzy = async (event: any): Promise<BulkStation | MultiLocationResponse> => {
   const input = parseLambdaEvent<GetStationsFuzzyInput>(event, 'userInput');
+
   // send input to MapQuest
+  console.log('Sending input to MapQuest:', input);
   const result = await getLocationCoords(input.userInput);
+
   if (result.type === 'opt') {
+    console.log('Multiple location response:', result);
     return result;
   }
   // if single result
   if (result.type === 'loc') {
+    console.log('Single result');
     const { west, north, south, east } = getBoundingBox(result.lat, result.lng);
 
     const params = {
@@ -111,8 +116,10 @@ export const getStationFuzzy = async (event: any): Promise<BulkStation | MultiLo
         url,
         params,
       });
+      console.log('USGS Response:', response);
       return siteReducer(response.data.value.timeSeries);
     } catch (err) {
+      console.log(err);
       if (err instanceof Error) throw new Error(`${err.message}`);
       throw new Error('Internal Server Error');
     }

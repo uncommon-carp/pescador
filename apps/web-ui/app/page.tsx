@@ -9,22 +9,33 @@ import { useAuth } from '../context/AuthContext';
 import { StationListItem, Station } from './components/ui/StationListItem';
 
 const GET_DATA_QUERY = gql`
-  query GetStationAndWeather($zip: String!) {
-    bulkStation(zip: $zip) {
-      lakes {
-        usgsId
-        name
-        flowRate
-        gageHt
+  query GetStationAndWeather($userInput: String!) {
+    fuzzySearch(userInput: $userInput) {
+      ... on BulkStation {
+        lakes {
+          usgsId
+          name
+          flowRate
+          gageHt
+        }
+        streams {
+          usgsId
+          name
+          flowRate
+          gageHt
+        }
       }
-      streams {
-        usgsId
-        name
-        flowRate
-        gageHt
+      ... on MultiLocationResponse {
+        type
+        options {
+          display
+          lat
+          lon
+          county
+        }
       }
     }
-    weather(zip: $zip) {
+    weather(zip: $userInput) {
       temp
       wind {
         speed
@@ -54,15 +65,49 @@ const GET_STATION_HISTORY_QUERY = gql`
   }
 `;
 
+interface LocationOption {
+  display: string;
+  lat: number;
+  lng: number;
+  city?: string;
+  county?: string;
+  state?: string;
+}
+
 function HomePageContent() {
   const { user } = useAuth();
-  const [zipcode, setZipcode] = useState<string>('');
-  const [submittedZip, setSubmittedZip] = useState<string | null>(null);
+  const [searchInput, setSearchInput] = useState<string>('');
+  const [submittedSearch, setSubmittedSearch] = useState<string | null>(null);
+  const [locationOptions, setLocationOptions] = useState<LocationOption[] | null>(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
   const [favoritedStations, setFavoritedStations] = useState<Set<string>>(new Set());
   const [getData, { loading, error, data }] = useLazyQuery(GET_DATA_QUERY, {
     onError: (queryError) => {
       console.error('An error occurred during the bulk query:', queryError);
+    },
+    onCompleted: (responseData) => {
+      // Check if we got multiple location options
+      if (responseData?.fuzzySearch?.__typename === 'MultiLocationResponse') {
+        const options = responseData.fuzzySearch.options?.map((opt: any) => {
+          // Parse the display string to extract city and state
+          // Format: "Springfield, IL (Sangamon)"
+          const match = opt.display.match(/^([^,]+),\s*([^(]+)/);
+          const city = match ? match[1].trim() : '';
+          const state = match ? match[2].trim() : '';
+
+          return {
+            display: opt.display,
+            lat: opt.lat,
+            lng: opt.lon,
+            city,
+            county: opt.county,
+            state,
+          };
+        }) || [];
+        setLocationOptions(options);
+      } else {
+        setLocationOptions(null);
+      }
     },
   });
 
@@ -92,25 +137,37 @@ function HomePageContent() {
   };
 
   useEffect(() => {
-    if (submittedZip) {
-      getData({ variables: { zip: submittedZip } });
+    if (submittedSearch) {
+      getData({ variables: { userInput: submittedSearch } });
     }
-  }, [submittedZip, getData]);
+  }, [submittedSearch, getData]);
 
   const allStations = useMemo(() => {
-    if (!data?.bulkStation) return [];
-    const lakes = data.bulkStation.lakes || [];
-    const streams = data.bulkStation.streams || [];
+    if (!data?.fuzzySearch || data.fuzzySearch.__typename !== 'BulkStation') return [];
+    const lakes = data.fuzzySearch.lakes || [];
+    const streams = data.fuzzySearch.streams || [];
     return [...lakes, ...streams];
   }, [data]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!/^\d{5}$/.test(zipcode)) {
+    if (!searchInput.trim()) {
       return;
     }
-    setSubmittedZip(zipcode);
-    setZipcode('');
+    setSubmittedSearch(searchInput);
+    setLocationOptions(null); // Clear any previous location options
+  };
+
+  const handleLocationSelect = (location: LocationOption) => {
+    // Format a specific search string that MapQuest will definitively match
+    // Using "city, state" or "county, state" format
+    const searchString = location.city
+      ? `${location.city}, ${location.state}`
+      : `${location.county}, ${location.state}`;
+    setSearchInput(searchString);
+    setLocationOptions(null);
+    // Refetch both fuzzySearch and weather with the specific location
+    getData({ variables: { userInput: searchString } });
   };
 
   const handleStationClick = (usgsId: string) => {
@@ -175,7 +232,7 @@ function HomePageContent() {
               Make the Right Call
             </h1>
             <p className="mt-3 text-base sm:text-lg text-stone-100 drop-shadow-md animate-fade-in-delay px-2">
-              Enter a zip code for water station and weather info.
+              Search by address, city, state, zip, or county for water station and weather info.
             </p>
           </header>
 
@@ -186,13 +243,11 @@ function HomePageContent() {
             <div className="relative w-full sm:w-80">
               <input
                 type="text"
-                value={zipcode}
-                onChange={(e) => setZipcode(e.target.value)}
-                placeholder="Enter 5-digit zip code"
-                pattern="\d{5}"
-                maxLength={5}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Enter location (address, city, zip, county)"
                 className="w-full rounded-xl bg-slate-800/40 backdrop-blur-md border border-emerald-700/50 px-6 py-4 text-stone-100 text-lg placeholder-stone-400 shadow-lg transition-all duration-300 focus:bg-slate-800/60 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-700/30 focus:outline-none"
-                aria-label="Zip Code Input"
+                aria-label="Location Search Input"
               />
             </div>
             <button
@@ -222,7 +277,26 @@ function HomePageContent() {
               <p className="text-center text-orange-400">Error: {error.message}</p>
             )}
 
-            {data && (
+            {locationOptions && locationOptions.length > 0 && (
+              <div className="bg-slate-800/60 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-emerald-700/40 animate-fade-in">
+                <h2 className="text-xl font-bold text-stone-100 mb-4 text-center">
+                  Did you mean one of these locations?
+                </h2>
+                <div className="space-y-2">
+                  {locationOptions.map((location, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleLocationSelect(location)}
+                      className="w-full text-left px-4 py-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-stone-100 transition-colors duration-200 border border-emerald-700/30 hover:border-emerald-600"
+                    >
+                      <span className="font-medium">{location.display}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {data && !locationOptions && (
               <div className="space-y-8 mt-4">
                 {data.weather && (
                   <div className="text-center bg-slate-800/60 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-emerald-700/40">

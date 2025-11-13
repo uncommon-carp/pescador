@@ -16,11 +16,7 @@ function decimalTrim(num: number) {
   }
 }
 
-function roundToTwoDecimals(num: number): number {
-  return Math.round(num * 100) / 100;
-}
-
-export function getBoundingBox(lat: string | number, long: string | number, radius = 0.2) {
+export function getBoundingBox(lat: string | number, long: string | number, radius = 10) {
   const latNum = +lat;
   const longNum = +long;
 
@@ -37,9 +33,9 @@ export function getBoundingBox(lat: string | number, long: string | number, radi
   const longOffset = radius / milesPerDegreeLong;
 
   return {
-    west: decimalTrim(longNum - roundToTwoDecimals(longOffset)),
-    north: decimalTrim(latNum + roundToTwoDecimals(latOffset)),
-    south: decimalTrim(latNum - roundToTwoDecimals(latOffset)),
-    east: decimalTrim(longNum + roundToTwoDecimals(longOffset)),
+    west: decimalTrim(longNum - longOffset),
+    north: decimalTrim(latNum + latOffset),
+    south: decimalTrim(latNum - latOffset),
+    east: decimalTrim(longNum + longOffset),
   };
 }

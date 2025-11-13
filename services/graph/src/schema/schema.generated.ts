@@ -9,7 +9,7 @@ type Query {
   bulkStation(zip: String!): BulkStation
   weather(zip: String!): CurrentWeather
   favoriteStations(userSub: String!): [FavoriteStation!]!
-  fuzzySearch: FuzzySearchResult
+  fuzzySearch(userInput: String!): FuzzySearchResult
 }
 
 type Mutation {
@@ -55,9 +55,16 @@ type MapQuestLocation {
   latLng: MapQuestCoords
 }
 
+type LocationOption {
+  display: String!
+  lat: Float!
+  lon: Float!
+  county: String!
+}
+
 type MultiLocationResponse {
   type: String!
-  options: [MapQuestLocation]
+  options: [LocationOption]
   lat: Float
   lon: Float
 }

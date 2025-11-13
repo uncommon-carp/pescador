@@ -30,11 +30,13 @@ export async function getLocationCoords(location: string) {
       county: loc.adminArea4
     }));
 
+    console.log('Returning multiple options:', options);
     return { type: 'opt', options };
   }
 
   const lat = response.data.results[0].locations[0].latLng.lat;
   const lng = response.data.results[0].locations[0].latLng.lng;
 
+  console.log('Returning single location', { lat, lng });
   return { type: 'loc', lat, lng };
 }

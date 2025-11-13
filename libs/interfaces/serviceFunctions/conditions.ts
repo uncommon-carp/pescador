@@ -4,7 +4,7 @@ export interface GetWeatherByZipFunction {
   serviceName: 'pescador-conditions';
   functionName: 'getWeatherByZip';
   input: { zip: string };
-  output: CurrentWeather;
+  output: CurrentWeather | null;
 }
 
 export interface GetStationsByBoxFunction {

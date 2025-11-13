@@ -32,6 +32,19 @@ export function getResolvers() {
       createUserProfile: createUserProfileResolver,
       updateUserProfile: updateUserProfileResolver,
     },
+    FuzzySearchResult: {
+      __resolveType(obj: any) {
+        // BulkStation has streams and lakes fields
+        if ('streams' in obj || 'lakes' in obj) {
+          return 'BulkStation';
+        }
+        // MultiLocationResponse has type and options fields
+        if ('type' in obj && 'options' in obj) {
+          return 'MultiLocationResponse';
+        }
+        return null;
+      },
+    },
   };
 
   return resolvers;
