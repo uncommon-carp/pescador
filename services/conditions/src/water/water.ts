@@ -125,5 +125,6 @@ export const getStationFuzzy = async (event: any): Promise<BulkStation | MultiLo
     }
 
   }
-  return { type: 'ftf' };
+  // No results found - return empty MultiLocationResponse structure
+  return { type: 'ftf', options: [] };
 };

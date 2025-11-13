@@ -79,6 +79,7 @@ function HomePageContent() {
   const [searchInput, setSearchInput] = useState<string>('');
   const [submittedSearch, setSubmittedSearch] = useState<string | null>(null);
   const [locationOptions, setLocationOptions] = useState<LocationOption[] | null>(null);
+  const [noResultsFound, setNoResultsFound] = useState<boolean>(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
   const [favoritedStations, setFavoritedStations] = useState<Set<string>>(new Set());
   const [getData, { loading, error, data }] = useLazyQuery(GET_DATA_QUERY, {
@@ -88,6 +89,13 @@ function HomePageContent() {
     onCompleted: (responseData) => {
       // Check if we got multiple location options
       if (responseData?.fuzzySearch?.__typename === 'MultiLocationResponse') {
+        // Check if this is a 'failed to find' response
+        if (responseData.fuzzySearch.type === 'ftf') {
+          setNoResultsFound(true);
+          setLocationOptions(null);
+          return;
+        }
+
         const options = responseData.fuzzySearch.options?.map((opt: any) => {
           // Parse the display string to extract city and state
           // Format: "Springfield, IL (Sangamon)"
@@ -105,8 +113,10 @@ function HomePageContent() {
           };
         }) || [];
         setLocationOptions(options);
+        setNoResultsFound(false);
       } else {
         setLocationOptions(null);
+        setNoResultsFound(false);
       }
     },
   });
@@ -156,6 +166,7 @@ function HomePageContent() {
     }
     setSubmittedSearch(searchInput);
     setLocationOptions(null); // Clear any previous location options
+    setNoResultsFound(false); // Clear any previous error state
   };
 
   const handleLocationSelect = (location: LocationOption) => {
@@ -275,6 +286,17 @@ function HomePageContent() {
 
             {error && (
               <p className="text-center text-orange-400">Error: {error.message}</p>
+            )}
+
+            {noResultsFound && submittedSearch && (
+              <div className="bg-slate-800/60 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-orange-500/40 animate-fade-in">
+                <p className="text-center text-orange-400 text-lg">
+                  No results for <span className="font-semibold">{submittedSearch}</span>.
+                </p>
+                <p className="text-center text-stone-300 mt-2">
+                  Please search by zip, city and state, or county.
+                </p>
+              </div>
             )}
 
             {locationOptions && locationOptions.length > 0 && (
