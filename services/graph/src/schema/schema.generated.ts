@@ -9,6 +9,7 @@ type Query {
   bulkStation(zip: String!): BulkStation
   weather(zip: String!): CurrentWeather
   favoriteStations(userSub: String!): [FavoriteStation!]!
+  fuzzySearch(userInput: String!): FuzzySearchResult
 }
 
 type Mutation {
@@ -42,10 +43,38 @@ type SingleStation implements Station {
   flowRate: Float
 }
 
+type MapQuestCoords {
+  lat: Float
+  lng: Float
+}
+
+type MapQuestLocation {
+  adminArea5: String
+  adminArea4: String
+  adminArea3: String
+  latLng: MapQuestCoords
+}
+
+type LocationOption {
+  display: String!
+  lat: Float!
+  lon: Float!
+  county: String!
+}
+
+type MultiLocationResponse {
+  type: String!
+  options: [LocationOption]
+  lat: Float
+  lon: Float
+}
+
 type BulkStation {
   streams: [SingleStation]
   lakes: [SingleStation]
 }
+
+union FuzzySearchResult = BulkStation | MultiLocationResponse
 
 type ReportedValues {
   flow: [DataFrame]

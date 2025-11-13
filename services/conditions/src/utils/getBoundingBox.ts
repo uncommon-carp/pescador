@@ -16,11 +16,26 @@ function decimalTrim(num: number) {
   }
 }
 
-export function getBoundingBox(lat: string | number, long: string | number) {
+export function getBoundingBox(lat: string | number, long: string | number, radius = 10) {
+  const latNum = +lat;
+  const longNum = +long;
+
+  // Constants
+  const MILES_PER_DEGREE_LAT = 69.172; // This is roughly constant
+
+  // Calculate miles per degree of longitude at this latitude
+  // This changes based on latitude (smaller as you approach poles)
+  const latRadians = (latNum * Math.PI) / 180;
+  const milesPerDegreeLong = Math.cos(latRadians) * MILES_PER_DEGREE_LAT;
+
+  // Calculate degree offsets for the radius
+  const latOffset = radius / MILES_PER_DEGREE_LAT;
+  const longOffset = radius / milesPerDegreeLong;
+
   return {
-    west: decimalTrim(+long - 0.2),
-    north: decimalTrim(+lat + 0.2),
-    south: decimalTrim(+lat - 0.2),
-    east: decimalTrim(+long + 0.2),
+    west: decimalTrim(longNum - longOffset),
+    north: decimalTrim(latNum + latOffset),
+    south: decimalTrim(latNum - latOffset),
+    east: decimalTrim(longNum + longOffset),
   };
 }

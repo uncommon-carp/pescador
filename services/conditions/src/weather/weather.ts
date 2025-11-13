@@ -1,6 +1,6 @@
 import { OpenWeatherResponse, CurrentWeather } from '@pescador/libs';
 import axios from 'axios';
-import { getClouds, getWindDirection, getZipCoords, parseLambdaEvent } from '../utils';
+import { getClouds, getWindDirection, getLocationCoords, parseLambdaEvent } from '../utils';
 
 interface GetWeatherInput {
   zip: string;
@@ -8,11 +8,17 @@ interface GetWeatherInput {
 
 export async function getWeatherByZip(
   event: any,
-): Promise<CurrentWeather> {
+): Promise<CurrentWeather | null> {
   const apiKey = process.env.OPEN_WEATHER_API_KEY;
   const input = parseLambdaEvent<GetWeatherInput>(event, 'zip');
   const { zip } = input;
-  const result = await getZipCoords(zip);
+  const result = await getLocationCoords(zip);
+
+  // If multiple locations found, return null - user needs to select one first
+  if (result.type !== 'loc') {
+    return null;
+  }
+
   const { lat, lng } = result;
   const params = {
     lat,

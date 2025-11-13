@@ -75,6 +75,34 @@ export type FavoriteStation = {
   stationName: Scalars['String']['output'];
 };
 
+export type FuzzySearchResult = BulkStation | MultiLocationResponse;
+
+export type LocationOption = {
+  county: Scalars['String']['output'];
+  display: Scalars['String']['output'];
+  lat: Scalars['Float']['output'];
+  lon: Scalars['Float']['output'];
+};
+
+export type MapQuestCoords = {
+  lat?: Maybe<Scalars['Float']['output']>;
+  lng?: Maybe<Scalars['Float']['output']>;
+};
+
+export type MapQuestLocation = {
+  adminArea3?: Maybe<Scalars['String']['output']>;
+  adminArea4?: Maybe<Scalars['String']['output']>;
+  adminArea5?: Maybe<Scalars['String']['output']>;
+  latLng?: Maybe<MapQuestCoords>;
+};
+
+export type MultiLocationResponse = {
+  lat?: Maybe<Scalars['Float']['output']>;
+  lon?: Maybe<Scalars['Float']['output']>;
+  options?: Maybe<Array<Maybe<LocationOption>>>;
+  type: Scalars['String']['output'];
+};
+
 export type Mutation = {
   addFavoriteStation: StationOperationResult;
   createUserProfile: ProfileOperationResult;
@@ -110,6 +138,7 @@ export type ProfileOperationResult = {
 export type Query = {
   bulkStation?: Maybe<BulkStation>;
   favoriteStations: Array<FavoriteStation>;
+  fuzzySearch?: Maybe<FuzzySearchResult>;
   hello?: Maybe<Scalars['String']['output']>;
   station?: Maybe<StationWithRange>;
   user?: Maybe<User>;
@@ -125,6 +154,11 @@ export type QueryBulkStationArgs = {
 
 export type QueryFavoriteStationsArgs = {
   userSub: Scalars['String']['input'];
+};
+
+
+export type QueryFuzzySearchArgs = {
+  userInput: Scalars['String']['input'];
 };
 
 
@@ -278,6 +312,10 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+/** Mapping of union types */
+export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
+  FuzzySearchResult: ( BulkStation ) | ( MultiLocationResponse );
+};
 
 /** Mapping of interface types */
 export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = {
@@ -298,7 +336,12 @@ export type ResolversTypes = {
   DisplayUnits: DisplayUnits;
   FavoriteStation: ResolverTypeWrapper<FavoriteStation>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
+  FuzzySearchResult: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['FuzzySearchResult']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  LocationOption: ResolverTypeWrapper<LocationOption>;
+  MapQuestCoords: ResolverTypeWrapper<MapQuestCoords>;
+  MapQuestLocation: ResolverTypeWrapper<MapQuestLocation>;
+  MultiLocationResponse: ResolverTypeWrapper<MultiLocationResponse>;
   Mutation: ResolverTypeWrapper<{}>;
   ProfileOperationResult: ResolverTypeWrapper<ProfileOperationResult>;
   Query: ResolverTypeWrapper<{}>;
@@ -328,7 +371,12 @@ export type ResolversParentTypes = {
   DateTime: Scalars['DateTime']['output'];
   FavoriteStation: FavoriteStation;
   Float: Scalars['Float']['output'];
+  FuzzySearchResult: ResolversUnionTypes<ResolversParentTypes>['FuzzySearchResult'];
   Int: Scalars['Int']['output'];
+  LocationOption: LocationOption;
+  MapQuestCoords: MapQuestCoords;
+  MapQuestLocation: MapQuestLocation;
+  MultiLocationResponse: MultiLocationResponse;
   Mutation: {};
   ProfileOperationResult: ProfileOperationResult;
   Query: {};
@@ -386,6 +434,40 @@ export type FavoriteStationResolvers<ContextType = any, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type FuzzySearchResultResolvers<ContextType = any, ParentType extends ResolversParentTypes['FuzzySearchResult'] = ResolversParentTypes['FuzzySearchResult']> = {
+  __resolveType: TypeResolveFn<'BulkStation' | 'MultiLocationResponse', ParentType, ContextType>;
+};
+
+export type LocationOptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['LocationOption'] = ResolversParentTypes['LocationOption']> = {
+  county?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  display?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lat?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  lon?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MapQuestCoordsResolvers<ContextType = any, ParentType extends ResolversParentTypes['MapQuestCoords'] = ResolversParentTypes['MapQuestCoords']> = {
+  lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  lng?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MapQuestLocationResolvers<ContextType = any, ParentType extends ResolversParentTypes['MapQuestLocation'] = ResolversParentTypes['MapQuestLocation']> = {
+  adminArea3?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  adminArea4?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  adminArea5?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  latLng?: Resolver<Maybe<ResolversTypes['MapQuestCoords']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MultiLocationResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['MultiLocationResponse'] = ResolversParentTypes['MultiLocationResponse']> = {
+  lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  lon?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  options?: Resolver<Maybe<Array<Maybe<ResolversTypes['LocationOption']>>>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addFavoriteStation?: Resolver<ResolversTypes['StationOperationResult'], ParentType, ContextType, RequireFields<MutationAddFavoriteStationArgs, 'input'>>;
   createUserProfile?: Resolver<ResolversTypes['ProfileOperationResult'], ParentType, ContextType, RequireFields<MutationCreateUserProfileArgs, 'input'>>;
@@ -402,6 +484,7 @@ export type ProfileOperationResultResolvers<ContextType = any, ParentType extend
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   bulkStation?: Resolver<Maybe<ResolversTypes['BulkStation']>, ParentType, ContextType, RequireFields<QueryBulkStationArgs, 'zip'>>;
   favoriteStations?: Resolver<Array<ResolversTypes['FavoriteStation']>, ParentType, ContextType, RequireFields<QueryFavoriteStationsArgs, 'userSub'>>;
+  fuzzySearch?: Resolver<Maybe<ResolversTypes['FuzzySearchResult']>, ParentType, ContextType, RequireFields<QueryFuzzySearchArgs, 'userInput'>>;
   hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   station?: Resolver<Maybe<ResolversTypes['StationWithRange']>, ParentType, ContextType, RequireFields<QueryStationArgs, 'id' | 'range'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -480,6 +563,11 @@ export type Resolvers<ContextType = any> = {
   DataFrame?: DataFrameResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   FavoriteStation?: FavoriteStationResolvers<ContextType>;
+  FuzzySearchResult?: FuzzySearchResultResolvers<ContextType>;
+  LocationOption?: LocationOptionResolvers<ContextType>;
+  MapQuestCoords?: MapQuestCoordsResolvers<ContextType>;
+  MapQuestLocation?: MapQuestLocationResolvers<ContextType>;
+  MultiLocationResponse?: MultiLocationResponseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   ProfileOperationResult?: ProfileOperationResultResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

@@ -18,6 +18,7 @@ interface GraphStackProps extends cdk.StackProps {
   getWeatherByZipFunctionArn: string;
   getStationsByBoxFunctionArn: string;
   getStationByIdFunctionArn: string;
+  getStationFuzzyFunctionArn: string;
   addFavoriteStationFunctionArn: string;
   removeFavoriteStationFunctionArn: string;
   getFavoriteStationsFunctionArn: string;
@@ -55,6 +56,7 @@ export class GraphStack extends cdk.Stack {
       GET_WEATHER_BY_ZIP_FUNCTION_ARN: props.getWeatherByZipFunctionArn,
       GET_STATIONS_BY_BOX_FUNCTION_ARN: props.getStationsByBoxFunctionArn,
       GET_STATION_BY_ID_FUNCTION_ARN: props.getStationByIdFunctionArn,
+      GET_STATION_FUZZY_FUNCTION_ARN: props.getStationFuzzyFunctionArn,
 
       // Stations service Lambda function ARNs for invocation
       ADD_FAVORITE_STATION_FUNCTION_ARN: props.addFavoriteStationFunctionArn,
