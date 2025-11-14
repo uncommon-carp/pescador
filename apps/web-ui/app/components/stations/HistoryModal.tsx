@@ -1,16 +1,29 @@
 import { useMemo } from 'react';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { Alert } from '../ui/Alert';
+import { Line } from 'react-chartjs-2';
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
   Tooltip,
-  ResponsiveContainer,
   Legend,
-} from 'recharts';
+  ChartOptions,
+} from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface HistoryValue {
   timestamp: string;
@@ -118,6 +131,162 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
   const hasFlowData = chartData.some((d) => d.flow !== null);
   const hasGageData = chartData.some((d) => d.gage !== null);
 
+  // Chart.js configuration for Flow Rate
+  const flowChartData = {
+    labels: chartData.map((d) => d.date),
+    datasets: [
+      {
+        label: 'Flow Rate (cfs)',
+        data: chartData.map((d) => d.flow),
+        borderColor: '#fbbf24',
+        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fbbf24',
+        tension: 0.1,
+        spanGaps: true,
+      },
+    ],
+  };
+
+  const flowChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        display: true,
+        labels: {
+          color: '#e5e7eb',
+        },
+      },
+      tooltip: {
+        backgroundColor: '#1e293b',
+        titleColor: '#e5e7eb',
+        bodyColor: '#e5e7eb',
+        borderColor: '#10b981',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+        callbacks: {
+          title: (context) => {
+            const index = context[0].dataIndex;
+            return chartData[index]?.dateTime || '';
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          color: '#334155',
+        },
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 12,
+          },
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grace: '10%',
+        grid: {
+          color: '#334155',
+        },
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 12,
+          },
+        },
+      },
+    },
+  };
+
+  // Chart.js configuration for Gage Height
+  const gageChartData = {
+    labels: chartData.map((d) => d.date),
+    datasets: [
+      {
+        label: 'Gage Height (ft)',
+        data: chartData.map((d) => d.gage),
+        borderColor: '#06b6d4',
+        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#06b6d4',
+        pointBorderColor: '#06b6d4',
+        tension: 0.1,
+        spanGaps: true,
+      },
+    ],
+  };
+
+  const gageChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        display: true,
+        labels: {
+          color: '#e5e7eb',
+        },
+      },
+      tooltip: {
+        backgroundColor: '#1e293b',
+        titleColor: '#e5e7eb',
+        bodyColor: '#e5e7eb',
+        borderColor: '#10b981',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+        callbacks: {
+          title: (context) => {
+            const index = context[0].dataIndex;
+            return chartData[index]?.dateTime || '';
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          color: '#334155',
+        },
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 12,
+          },
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grace: '10%',
+        grid: {
+          color: '#334155',
+        },
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 12,
+          },
+        },
+      },
+    },
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -161,46 +330,9 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                     <h3 className="text-lg font-semibold text-stone-100 mb-3">
                       Flow Rate (cfs)
                     </h3>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <LineChart
-                        data={chartData}
-                        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                        <XAxis
-                          dataKey="date"
-                          stroke="#94a3b8"
-                          style={{ fontSize: '12px' }}
-                          interval="preserveStartEnd"
-                        />
-                        <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
-                        <Tooltip
-                          labelFormatter={(value, payload) =>
-                            payload[0]?.payload?.dateTime || value
-                          }
-                          contentStyle={{
-                            backgroundColor: '#1e293b',
-                            border: '1px solid #10b981',
-                            borderRadius: '8px',
-                          }}
-                          labelStyle={{ color: '#e5e7eb' }}
-                          cursor={{ stroke: '#94a3b8', strokeWidth: 1 }}
-                          isAnimationActive={false}
-                        />
-                        <Legend />
-                        <Line
-                          type="monotone"
-                          dataKey="flow"
-                          stroke="#fbbf24"
-                          strokeWidth={3}
-                          dot={{ r: 2, fill: '#fbbf24', strokeWidth: 0 }}
-                          activeDot={{ r: 6, fill: '#fbbf24', stroke: '#fbbf24', strokeWidth: 2 }}
-                          name="Flow Rate (cfs)"
-                          connectNulls
-                          isAnimationActive={false}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    <div style={{ height: '250px' }}>
+                      <Line data={flowChartData} options={flowChartOptions} />
+                    </div>
                   </div>
                 )}
 
@@ -210,46 +342,9 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                     <h3 className="text-lg font-semibold text-stone-100 mb-3">
                       Gage Height (ft)
                     </h3>
-                    <ResponsiveContainer width="100%" height={250}>
-                      <LineChart
-                        data={chartData}
-                        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                        <XAxis
-                          dataKey="date"
-                          stroke="#94a3b8"
-                          style={{ fontSize: '12px' }}
-                          interval="preserveStartEnd"
-                        />
-                        <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
-                        <Tooltip
-                          labelFormatter={(value, payload) =>
-                            payload[0]?.payload?.dateTime || value
-                          }
-                          contentStyle={{
-                            backgroundColor: '#1e293b',
-                            border: '1px solid #10b981',
-                            borderRadius: '8px',
-                          }}
-                          labelStyle={{ color: '#e5e7eb' }}
-                          cursor={{ stroke: '#94a3b8', strokeWidth: 1 }}
-                          isAnimationActive={false}
-                        />
-                        <Legend />
-                        <Line
-                          type="monotone"
-                          dataKey="gage"
-                          stroke="#06b6d4"
-                          strokeWidth={3}
-                          dot={{ r: 2, fill: '#06b6d4', strokeWidth: 0 }}
-                          activeDot={{ r: 6, fill: '#06b6d4', stroke: '#06b6d4', strokeWidth: 2 }}
-                          name="Gage Height (ft)"
-                          connectNulls
-                          isAnimationActive={false}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+                    <div style={{ height: '250px' }}>
+                      <Line data={gageChartData} options={gageChartOptions} />
+                    </div>
                   </div>
                 )}
               </div>
