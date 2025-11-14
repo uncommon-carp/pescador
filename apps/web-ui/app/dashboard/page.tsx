@@ -8,6 +8,12 @@ import { useAuth } from '../../context/AuthContext';
 import { convertMmHgToInHg } from '@/lib/mmhgToInHg';
 import { useRouter } from 'next/navigation';
 import { StationListItem, Station } from '../components/ui/StationListItem';
+import { LoadingSpinner } from '../components/ui/LoadingSpinner';
+import { Button } from '../components/ui/Button';
+import { TextInput } from '../components/ui/TextInput';
+import { Card } from '../components/ui/Card';
+import { Alert } from '../components/ui/Alert';
+import { WeatherCard } from '../components/weather/WeatherCard';
 import {
   GET_STATION_QUERY,
   GET_WEATHER_QUERY,
@@ -208,42 +214,15 @@ function DashboardContent() {
               Current Weather
             </h2>
             {weatherLoading ? (
-              <div className="flex justify-center items-center p-8 bg-slate-800/60 backdrop-blur-sm rounded-lg">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-300 border-t-orange-600" />
-              </div>
-            ) : weatherData?.weather ? (
-              <div className="bg-slate-800/60 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-emerald-700/40">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="text-center">
-                    <p className="text-5xl font-bold text-amber-400">
-                      {Math.round(weatherData.weather.temp)}°F
-                    </p>
-                    <p className="text-stone-400 mt-2">Temperature</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-stone-200">
-                      {weatherData.weather.wind?.speed || 'N/A'}
-                    </p>
-                    <p className="text-stone-400 mt-2">
-                      Wind Speed (mph) from {weatherData.weather.wind?.direction || 'N/A'}
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-stone-200">
-                      {convertMmHgToInHg(Number(weatherData.weather.pressure))}
-                    </p>
-                    <p className="text-stone-400 mt-2">Pressure (inHg)</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-stone-200">
-                      {weatherData.weather.humidity}%
-                    </p>
-                    <p className="text-stone-400 mt-2">Humidity</p>
-                  </div>
+              <Card>
+                <div className="flex justify-center items-center p-2">
+                  <LoadingSpinner size="md" variant="dark" />
                 </div>
-              </div>
+              </Card>
+            ) : weatherData?.weather ? (
+              <WeatherCard weather={weatherData.weather} showHumidity />
             ) : (
-              <div className="text-center text-stone-400 p-6 bg-slate-800/60 backdrop-blur-sm rounded-lg">
+              <Card className="text-center text-stone-400">
                 {profileData?.userProfile?.zipCode ? (
                   <p>Unable to load weather data</p>
                 ) : (
@@ -258,7 +237,7 @@ function DashboardContent() {
                     to see weather information
                   </p>
                 )}
-              </div>
+              </Card>
             )}
           </div>
 
@@ -268,9 +247,11 @@ function DashboardContent() {
               Your Favorite Stations
             </h2>
             {favoritesLoading ? (
-              <div className="flex justify-center items-center p-8 bg-slate-800/60 backdrop-blur-sm rounded-lg">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-300 border-t-orange-600" />
-              </div>
+              <Card>
+                <div className="flex justify-center items-center p-2">
+                  <LoadingSpinner size="md" variant="dark" />
+                </div>
+              </Card>
             ) : favoriteStations.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {favoriteStations.map((favorite) => (
@@ -278,7 +259,7 @@ function DashboardContent() {
                 ))}
               </div>
             ) : (
-              <div className="text-center text-stone-400 p-6 bg-slate-800/60 backdrop-blur-sm rounded-lg">
+              <Card className="text-center text-stone-400">
                 <p className="mb-4">You haven't favorited any stations yet.</p>
                 <p>
                   Search for stations below or visit the{' '}
@@ -290,7 +271,7 @@ function DashboardContent() {
                   </a>{' '}
                   to find and favorite stations.
                 </p>
-              </div>
+              </Card>
             )}
           </div>
 
@@ -303,39 +284,34 @@ function DashboardContent() {
               onSubmit={handleSearchSubmit}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <input
+              <TextInput
                 type="text"
                 value={searchZip}
                 onChange={(e) => setSearchZip(e.target.value)}
                 placeholder="Enter 5-digit zip code"
                 pattern="\d{5}"
                 maxLength={5}
-                className="flex-1 rounded-xl bg-slate-800/40 backdrop-blur-md border border-emerald-700/50 px-6 py-4 text-stone-100 text-lg placeholder-stone-400 shadow-lg transition-all duration-300 focus:bg-slate-800/60 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-700/30 focus:outline-none"
+                inputSize="lg"
+                className="flex-1"
                 aria-label="Zip Code Search"
               />
-              <button
+              <Button
                 type="submit"
-                disabled={searchLoading}
-                className="rounded-xl bg-gradient-to-r from-orange-600 to-amber-700 px-8 py-4 text-lg font-semibold text-white shadow-xl transition-all duration-300 hover:from-orange-500 hover:to-amber-600 hover:shadow-2xl hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100"
+                loading={searchLoading}
+                size="lg"
               >
-                {searchLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                    Searching...
-                  </span>
-                ) : (
-                  'Search'
-                )}
-              </button>
+                Search
+              </Button>
             </form>
 
             {/* Search Results */}
             {showSearchResults && (
               <div className="mt-6">
                 {searchError && (
-                  <p className="text-center text-orange-400 p-4">
-                    Error: {searchError.message}
-                  </p>
+                  <Alert
+                    variant="error"
+                    message={`Error: ${searchError.message}`}
+                  />
                 )}
                 {searchResults.length > 0 ? (
                   <div>

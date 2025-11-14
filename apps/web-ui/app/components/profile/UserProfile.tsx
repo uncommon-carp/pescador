@@ -5,6 +5,11 @@ import { useQuery, useMutation } from '@apollo/client';
 import { FaEdit, FaSave, FaTimes, FaUser, FaMapMarkerAlt, FaCog } from 'react-icons/fa';
 import { useAuth } from '../../../context/AuthContext';
 import { GET_USER_PROFILE, CREATE_USER_PROFILE, UPDATE_USER_PROFILE } from '../../../lib/graphql/profileOperations';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { Button } from '../ui/Button';
+import { TextInput } from '../ui/TextInput';
+import { Card } from '../ui/Card';
+import { Alert } from '../ui/Alert';
 
 interface UserProfileData {
   userProfile: {
@@ -67,20 +72,18 @@ export function UserProfile() {
   if (!user) {
     return (
       <div className="max-w-2xl mx-auto p-6">
-        <div className="bg-amber-900/30 border border-amber-600/40 rounded-lg p-4 backdrop-blur-sm">
-          <p className="text-amber-200">Please sign in to view your profile.</p>
-        </div>
+        <Alert
+          variant="warning"
+          message="Please sign in to view your profile."
+        />
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-slate-700/40 rounded mb-4"></div>
-          <div className="h-32 bg-slate-700/40 rounded"></div>
-        </div>
+      <div className="max-w-2xl mx-auto p-6 flex justify-center">
+        <LoadingSpinner size="lg" variant="dark" />
       </div>
     );
   }
@@ -88,9 +91,10 @@ export function UserProfile() {
   if (error) {
     return (
       <div className="max-w-2xl mx-auto p-6">
-        <div className="bg-red-900/30 border border-red-600/40 rounded-lg p-4 backdrop-blur-sm">
-          <p className="text-red-200">Error loading profile: {error.message}</p>
-        </div>
+        <Alert
+          variant="error"
+          message={`Error loading profile: ${error.message}`}
+        />
       </div>
     );
   }
@@ -145,36 +149,41 @@ export function UserProfile() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-slate-800/60 backdrop-blur-sm rounded-lg shadow-xl border border-emerald-700/40 p-6">
+      <Card>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
             <FaUser className="text-2xl text-emerald-400" />
             <h1 className="text-2xl font-bold text-stone-100">User Profile</h1>
           </div>
           {!isEditing ? (
-            <button
+            <Button
               onClick={handleEdit}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-700 text-white rounded-md hover:from-orange-500 hover:to-amber-600 transition-all shadow-lg"
+              size="md"
+              className="flex items-center space-x-2"
             >
               <FaEdit />
               <span>Edit</span>
-            </button>
+            </Button>
           ) : (
             <div className="flex space-x-2">
-              <button
+              <Button
                 onClick={handleSave}
-                className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors shadow-lg"
+                variant="success"
+                size="md"
+                className="flex items-center space-x-2"
               >
                 <FaSave />
                 <span>Save</span>
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleCancel}
-                className="flex items-center space-x-2 px-4 py-2 bg-slate-600 text-white rounded-md hover:bg-slate-700 transition-colors shadow-lg"
+                variant="secondary"
+                size="md"
+                className="flex items-center space-x-2"
               >
                 <FaTimes />
                 <span>Cancel</span>
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -188,37 +197,43 @@ export function UserProfile() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-stone-300 mb-1">
-                  Email
-                </label>
                 {isEditing ? (
-                  <input
+                  <TextInput
                     type="email"
+                    label="Email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-700/40 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
+                    inputSize="md"
                   />
                 ) : (
-                  <p className="text-stone-200 py-2">{profile?.email || user.email}</p>
+                  <div>
+                    <label className="block text-sm font-medium text-stone-300 mb-1">
+                      Email
+                    </label>
+                    <p className="text-stone-200 py-2">{profile?.email || user.email}</p>
+                  </div>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-stone-300 mb-1">
-                  ZIP Code
-                </label>
                 {isEditing ? (
-                  <input
+                  <TextInput
                     type="text"
+                    label="ZIP Code"
                     value={formData.zipCode}
                     onChange={(e) => handleInputChange('zipCode', e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-700/40 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
                     placeholder="Enter ZIP code"
+                    inputSize="md"
                   />
                 ) : (
-                  <p className="text-stone-200 py-2 flex items-center">
-                    <FaMapMarkerAlt className="mr-2 text-stone-400" />
-                    {profile?.zipCode || 'Not set'}
-                  </p>
+                  <div>
+                    <label className="block text-sm font-medium text-stone-300 mb-1">
+                      ZIP Code
+                    </label>
+                    <p className="text-stone-200 py-2 flex items-center">
+                      <FaMapMarkerAlt className="mr-2 text-stone-400" />
+                      {profile?.zipCode || 'Not set'}
+                    </p>
+                  </div>
                 )}
               </div>
             </div>
@@ -284,7 +299,7 @@ export function UserProfile() {
             </div>
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

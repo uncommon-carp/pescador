@@ -7,6 +7,15 @@ import { convertMmHgToInHg } from '@/lib/mmhgToInHg';
 import { Header } from './components/ui/Header';
 import { useAuth } from '../context/AuthContext';
 import { StationListItem, Station } from './components/ui/StationListItem';
+import { LoadingSpinner } from './components/ui/LoadingSpinner';
+import { Button } from './components/ui/Button';
+import { TextInput } from './components/ui/TextInput';
+import { Card } from './components/ui/Card';
+import { Alert } from './components/ui/Alert';
+import { HistoryModal } from './components/stations/HistoryModal';
+import { WeatherCard } from './components/weather/WeatherCard';
+import { SearchForm } from './components/search/SearchForm';
+import { LocationOptionsCard } from './components/search/LocationOptionsCard';
 
 const GET_DATA_QUERY = gql`
   query GetStationAndWeather($userInput: String!) {
@@ -189,49 +198,6 @@ function HomePageContent() {
     setIsHistoryModalOpen(false);
   };
 
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    if (isNaN(date.getTime())) {
-      return 'Invalid Date';
-    }
-    return date.toLocaleDateString();
-  };
-  const historicalRecords = useMemo(() => {
-    if (!historyData?.station?.values) return [];
-
-    const flowData = historyData.station.values.flow || [];
-    const gageData = historyData.station.values.gage || [];
-
-    const dataMap = new Map<
-      string,
-      { flowValue: string | null; gageValue: string | null }
-    >();
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    flowData.forEach((item: any) => {
-      if (!dataMap.has(item.timestamp)) {
-        dataMap.set(item.timestamp, { flowValue: null, gageValue: null });
-      }
-      dataMap.get(item.timestamp)!.flowValue = item.value;
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    gageData.forEach((item: any) => {
-      if (!dataMap.has(item.timestamp)) {
-        dataMap.set(item.timestamp, { flowValue: null, gageValue: null });
-      }
-      dataMap.get(item.timestamp)!.gageValue = item.value;
-    });
-
-    return (
-      Array.from(dataMap.entries())
-        .map(([timestamp, values]) => ({ timestamp, ...values }))
-        .sort(
-          (a, b) =>
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-        )
-    );
-  }, [historyData]);
 
   return (
     <>
@@ -247,108 +213,42 @@ function HomePageContent() {
             </p>
           </header>
 
-          <form
+          <SearchForm
+            searchValue={searchInput}
+            onSearchChange={setSearchInput}
             onSubmit={handleSubmit}
-            className="mt-8 flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-center animate-slide-up"
-          >
-            <div className="relative w-full sm:w-80">
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Enter location (address, city, zip, county)"
-                className="w-full rounded-xl bg-slate-800/40 backdrop-blur-md border border-emerald-700/50 px-6 py-4 text-stone-100 text-lg placeholder-stone-400 shadow-lg transition-all duration-300 focus:bg-slate-800/60 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-700/30 focus:outline-none"
-                aria-label="Location Search Input"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-orange-600 to-amber-700 px-8 py-4 text-lg font-semibold text-white shadow-xl transition-all duration-300 hover:from-orange-500 hover:to-amber-600 hover:shadow-2xl hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  Searching...
-                </span>
-              ) : (
-                'Search'
-              )}
-            </button>
-          </form>
+            loading={loading}
+          />
 
           <div className="mt-6 min-h-[50px]">
             {loading && (
               <div className="flex justify-center items-center p-4">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-300 border-t-orange-600" />
+                <LoadingSpinner size="md" variant="dark" />
               </div>
             )}
 
             {error && (
-              <p className="text-center text-orange-400">Error: {error.message}</p>
+              <div className="text-center">
+                <Alert variant="error" message={`Error: ${error.message}`} />
+              </div>
             )}
 
             {noResultsFound && submittedSearch && (
-              <div className="bg-slate-800/60 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-orange-500/40 animate-fade-in">
-                <p className="text-center text-orange-400 text-lg">
-                  No results for <span className="font-semibold">{submittedSearch}</span>.
-                </p>
-                <p className="text-center text-stone-300 mt-2">
-                  Please search by zip, city and state, or county.
-                </p>
-              </div>
+              <Alert
+                variant="warning"
+                message={`No results for ${submittedSearch}. Please search by zip, city and state, or county.`}
+                className="animate-fade-in"
+              />
             )}
 
-            {locationOptions && locationOptions.length > 0 && (
-              <div className="bg-slate-800/60 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-emerald-700/40 animate-fade-in">
-                <h2 className="text-xl font-bold text-stone-100 mb-4 text-center">
-                  Did you mean one of these locations?
-                </h2>
-                <div className="space-y-2">
-                  {locationOptions.map((location, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleLocationSelect(location)}
-                      className="w-full text-left px-4 py-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-stone-100 transition-colors duration-200 border border-emerald-700/30 hover:border-emerald-600"
-                    >
-                      <span className="font-medium">{location.display}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            <LocationOptionsCard
+              locations={locationOptions || []}
+              onLocationSelect={handleLocationSelect}
+            />
 
             {data && !locationOptions && (
               <div className="space-y-8 mt-4">
-                {data.weather && (
-                  <div className="text-center bg-slate-800/60 backdrop-blur-sm p-6 rounded-lg shadow-xl border border-emerald-700/40">
-                    <h2 className="text-2xl font-bold text-stone-100 mb-4">
-                      Current Weather
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center justify-center">
-                      <p className="text-5xl font-bold text-amber-400">
-                        {Math.round(data.weather.temp)}°F
-                      </p>
-                      <div className="text-center sm:text-left">
-                        <p className="text-lg font-semibold text-stone-200">
-                          Wind
-                        </p>
-                        <p className="text-stone-300">
-                          {data.weather.wind.speed} from the{' '}
-                          {data.weather.wind.direction}
-                        </p>
-                      </div>
-                      <div className="text-center sm:text-left">
-                        <p className="text-lg font-semibold text-stone-200">
-                          Pressure
-                        </p>
-                        <p className="text-stone-300">
-                          {convertMmHgToInHg(Number(data.weather.pressure))} inHg
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {data.weather && <WeatherCard weather={data.weather} />}
 
                 {allStations.length > 0 && (
                   <div className="text-left">
@@ -373,87 +273,13 @@ function HomePageContent() {
           </div>
 
           {/* Station History Modal */}
-          {isHistoryModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
-              <div className="relative w-full max-w-lg rounded-lg bg-slate-800 border border-emerald-700/40 p-6 shadow-2xl">
-                <button
-                  onClick={closeHistoryModal}
-                  className="absolute right-4 top-4 text-stone-400 hover:text-stone-100 text-2xl font-bold"
-                  aria-label="Close"
-                >
-                  &times;
-                </button>
-                {historyLoading ? (
-                  <div className="flex justify-center items-center p-8">
-                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-stone-300 border-t-orange-600" />
-                  </div>
-                ) : historyError ? (
-                  <div className="text-center text-orange-400 p-4">
-                    <h2 className="text-xl font-bold mb-2">
-                      Error Loading History
-                    </h2>
-                    <p>Could not load historical data for this station.</p>
-                    <p className="text-sm mt-2">{historyError.message}</p>
-                  </div>
-                ) : historyData?.station ? (
-                  <div>
-                    <h2 className="text-2xl font-bold text-stone-100 mb-4">
-                      {historyData.station.name} History
-                    </h2>
-                    <p className="text-sm text-stone-400 mb-4">
-                      USGS ID: {historyData.station.usgsId}
-                    </p>
-                    {historicalRecords.length > 0 ? (
-                      <div className="max-h-80 overflow-y-auto pr-2">
-                        <table className="min-w-full divide-y divide-emerald-700/40">
-                          <thead className="bg-slate-900/50 sticky top-0">
-                            <tr>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">
-                                Date
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">
-                                Flow (cfs)
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">
-                                Height (ft)
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-emerald-700/30">
-                            {historicalRecords.map((record, index: number) => (
-                              <tr key={index}>
-                                <td className="px-3 py-2 whitespace-nowrap text-sm text-stone-200">
-                                  {formatTimestamp(record.timestamp)}
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-sm text-amber-400 font-semibold">
-                                  {record.flowValue !== null
-                                    ? record.flowValue
-                                    : 'N/A'}
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-sm text-amber-400 font-semibold">
-                                  {record.gageValue !== null
-                                    ? record.gageValue
-                                    : 'N/A'}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : (
-                      <p className="text-center text-stone-400 p-4">
-                        No historical data available for this station.
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center text-stone-400 p-4">
-                    Select a station to view its history.
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          <HistoryModal
+            isOpen={isHistoryModalOpen}
+            onClose={closeHistoryModal}
+            loading={historyLoading}
+            error={historyError}
+            data={historyData}
+          />
         </div>
       </main>
     </>
