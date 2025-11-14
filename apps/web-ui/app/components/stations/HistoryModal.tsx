@@ -1,6 +1,16 @@
 import { useMemo } from 'react';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { Alert } from '../ui/Alert';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 
 interface HistoryValue {
   timestamp: string;
@@ -33,15 +43,29 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
   error,
   data,
 }) => {
-  const formatTimestamp = (timestamp: string) => {
+  const formatDate = (timestamp: string) => {
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) {
+      return 'Invalid';
+    }
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const formatDateTime = (timestamp: string) => {
     const date = new Date(timestamp);
     if (isNaN(date.getTime())) {
       return 'Invalid Date';
     }
-    return date.toLocaleDateString();
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   };
 
-  const historicalRecords = useMemo(() => {
+  const chartData = useMemo(() => {
     if (!data?.station?.values) return [];
 
     const flowData = data.station.values.flow || [];
@@ -49,38 +73,56 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
 
     const dataMap = new Map<
       string,
-      { flowValue: string | null; gageValue: string | null }
+      { flow: number | null; gage: number | null; date: string; dateTime: string }
     >();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     flowData.forEach((item: any) => {
       if (!dataMap.has(item.timestamp)) {
-        dataMap.set(item.timestamp, { flowValue: null, gageValue: null });
+        dataMap.set(item.timestamp, {
+          flow: null,
+          gage: null,
+          date: formatDate(item.timestamp),
+          dateTime: formatDateTime(item.timestamp),
+        });
       }
-      dataMap.get(item.timestamp)!.flowValue = item.value;
+      const value = parseFloat(item.value);
+      dataMap.get(item.timestamp)!.flow = isNaN(value) ? null : value;
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     gageData.forEach((item: any) => {
       if (!dataMap.has(item.timestamp)) {
-        dataMap.set(item.timestamp, { flowValue: null, gageValue: null });
+        dataMap.set(item.timestamp, {
+          flow: null,
+          gage: null,
+          date: formatDate(item.timestamp),
+          dateTime: formatDateTime(item.timestamp),
+        });
       }
-      dataMap.get(item.timestamp)!.gageValue = item.value;
+      const value = parseFloat(item.value);
+      dataMap.get(item.timestamp)!.gage = isNaN(value) ? null : value;
     });
 
     return Array.from(dataMap.entries())
-      .map(([timestamp, values]) => ({ timestamp, ...values }))
+      .map(([timestamp, values]) => ({
+        timestamp,
+        ...values,
+      }))
       .sort(
         (a, b) =>
           new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
   }, [data]);
 
+  const hasFlowData = chartData.some((d) => d.flow !== null);
+  const hasGageData = chartData.some((d) => d.gage !== null);
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
-      <div className="relative w-full max-w-lg rounded-lg bg-slate-800 border border-emerald-700/40 p-6 shadow-2xl">
+      <div className="relative w-full max-w-4xl rounded-lg bg-slate-800 border border-emerald-700/40 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 text-stone-400 hover:text-stone-100 text-2xl font-bold"
@@ -105,41 +147,111 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
             <h2 className="text-2xl font-bold text-stone-100 mb-4">
               {data.station.name} History
             </h2>
-            <p className="text-sm text-stone-400 mb-4">
+            <p className="text-sm text-stone-400 mb-2">
               USGS ID: {data.station.usgsId}
             </p>
-            {historicalRecords.length > 0 ? (
-              <div className="max-h-80 overflow-y-auto pr-2">
-                <table className="min-w-full divide-y divide-emerald-700/40">
-                  <thead className="bg-slate-900/50 sticky top-0">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">
-                        Flow (cfs)
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">
-                        Height (ft)
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-emerald-700/30">
-                    {historicalRecords.map((record, index: number) => (
-                      <tr key={index}>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-stone-200">
-                          {formatTimestamp(record.timestamp)}
-                        </td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-amber-400 font-semibold">
-                          {record.flowValue !== null ? record.flowValue : 'N/A'}
-                        </td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-amber-400 font-semibold">
-                          {record.gageValue !== null ? record.gageValue : 'N/A'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <p className="text-xs text-stone-500 mb-6">
+              {chartData.length} data points
+            </p>
+            {chartData.length > 0 ? (
+              <div className="space-y-8">
+                {/* Flow Rate Chart */}
+                {hasFlowData && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-stone-100 mb-3">
+                      Flow Rate (cfs)
+                    </h3>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart
+                        data={chartData}
+                        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                        <XAxis
+                          dataKey="date"
+                          stroke="#94a3b8"
+                          style={{ fontSize: '12px' }}
+                          interval="preserveStartEnd"
+                        />
+                        <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                        <Tooltip
+                          labelFormatter={(value, payload) =>
+                            payload[0]?.payload?.dateTime || value
+                          }
+                          contentStyle={{
+                            backgroundColor: '#1e293b',
+                            border: '1px solid #10b981',
+                            borderRadius: '8px',
+                          }}
+                          labelStyle={{ color: '#e5e7eb' }}
+                          cursor={{ stroke: '#94a3b8', strokeWidth: 1 }}
+                          isAnimationActive={false}
+                        />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="flow"
+                          stroke="#fbbf24"
+                          strokeWidth={3}
+                          dot={{ r: 2, fill: '#fbbf24', strokeWidth: 0 }}
+                          activeDot={{ r: 6, fill: '#fbbf24', stroke: '#fbbf24', strokeWidth: 2 }}
+                          name="Flow Rate (cfs)"
+                          connectNulls
+                          isAnimationActive={false}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+
+                {/* Gage Height Chart */}
+                {hasGageData && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-stone-100 mb-3">
+                      Gage Height (ft)
+                    </h3>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <LineChart
+                        data={chartData}
+                        margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                        <XAxis
+                          dataKey="date"
+                          stroke="#94a3b8"
+                          style={{ fontSize: '12px' }}
+                          interval="preserveStartEnd"
+                        />
+                        <YAxis stroke="#94a3b8" style={{ fontSize: '12px' }} />
+                        <Tooltip
+                          labelFormatter={(value, payload) =>
+                            payload[0]?.payload?.dateTime || value
+                          }
+                          contentStyle={{
+                            backgroundColor: '#1e293b',
+                            border: '1px solid #10b981',
+                            borderRadius: '8px',
+                          }}
+                          labelStyle={{ color: '#e5e7eb' }}
+                          cursor={{ stroke: '#94a3b8', strokeWidth: 1 }}
+                          isAnimationActive={false}
+                        />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="gage"
+                          stroke="#06b6d4"
+                          strokeWidth={3}
+                          dot={{ r: 2, fill: '#06b6d4', strokeWidth: 0 }}
+                          activeDot={{ r: 6, fill: '#06b6d4', stroke: '#06b6d4', strokeWidth: 2 }}
+                          name="Gage Height (ft)"
+                          connectNulls
+                          isAnimationActive={false}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-center text-stone-400 p-4">
