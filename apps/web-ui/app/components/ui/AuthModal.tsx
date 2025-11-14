@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../context/AuthContext';
+import { Button } from './Button';
+import { TextInput } from './TextInput';
+import { Alert } from './Alert';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -97,98 +100,74 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </div>
 
         {error && (
-          <div
-            className={`mb-4 p-3 rounded ${
-              error.includes('confirmed')
-                ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'
-                : 'bg-orange-900/50 text-orange-300 border border-orange-700/50'
-            }`}
-          >
-            {error}
+          <div className="mb-4">
+            <Alert
+              variant={error.includes('confirmed') ? 'success' : 'error'}
+              message={error}
+            />
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'signup' && (
-            <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 bg-slate-900/50 border border-emerald-700/50 text-stone-100 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-emerald-600"
-              />
-            </div>
+            <TextInput
+              type="text"
+              name="name"
+              label="Name"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+              inputSize="md"
+            />
           )}
 
           {(mode === 'signin' || mode === 'signup') && (
             <>
-              <div>
-                <label className="block text-sm font-medium text-stone-200 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 bg-slate-900/50 border border-emerald-700/50 text-stone-100 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-emerald-600"
-                />
-              </div>
+              <TextInput
+                type="email"
+                name="email"
+                label="Email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                inputSize="md"
+              />
 
-              <div>
-                <label className="block text-sm font-medium text-stone-200 mb-1">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 bg-slate-900/50 border border-emerald-700/50 text-stone-100 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-emerald-600"
-                />
-              </div>
+              <TextInput
+                type="password"
+                name="password"
+                label="Password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+                inputSize="md"
+              />
             </>
           )}
 
           {mode === 'confirm' && (
-            <div>
-              <label className="block text-sm font-medium text-stone-200 mb-1">
-                Confirmation Code
-              </label>
-              <input
-                type="text"
-                name="confirmationCode"
-                value={formData.confirmationCode}
-                onChange={handleInputChange}
-                required
-                placeholder="Enter the code sent to your email"
-                className="w-full px-3 py-2 bg-slate-900/50 border border-emerald-700/50 text-stone-100 placeholder-stone-500 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-700/50 focus:border-emerald-600"
-              />
-            </div>
+            <TextInput
+              type="text"
+              name="confirmationCode"
+              label="Confirmation Code"
+              value={formData.confirmationCode}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter the code sent to your email"
+              inputSize="md"
+            />
           )}
 
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-orange-600 to-amber-700 text-white py-2 px-4 rounded-md hover:from-orange-500 hover:to-amber-600 focus:outline-none focus:ring-2 focus:ring-orange-600/50 disabled:opacity-50 transition-all duration-300"
+            loading={loading}
+            fullWidth
+            size="md"
           >
-            {loading ? (
-              'Loading...'
-            ) : (
-              <>
-                {mode === 'signin' && 'Sign In'}
-                {mode === 'signup' && 'Sign Up'}
-                {mode === 'confirm' && 'Confirm Account'}
-              </>
-            )}
-          </button>
+            {mode === 'signin' && 'Sign In'}
+            {mode === 'signup' && 'Sign Up'}
+            {mode === 'confirm' && 'Confirm Account'}
+          </Button>
         </form>
 
         {mode !== 'confirm' && (

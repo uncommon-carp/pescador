@@ -5,6 +5,11 @@ import { useQuery, useMutation } from '@apollo/client';
 import { FaStar, FaTrash, FaPlus, FaMapMarkerAlt } from 'react-icons/fa';
 import { useAuth } from '../../../context/AuthContext';
 import { GET_FAVORITE_STATIONS, ADD_FAVORITE_STATION, REMOVE_FAVORITE_STATION } from '../../../lib/graphql/profileOperations';
+import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { Button } from '../ui/Button';
+import { TextInput } from '../ui/TextInput';
+import { Card } from '../ui/Card';
+import { Alert } from '../ui/Alert';
 
 interface FavoriteStation {
   stationId: string;
@@ -57,22 +62,18 @@ export function FavoriteStations() {
 
   if (loading) {
     return (
-      <div className="animate-pulse space-y-4">
-        <div className="h-6 bg-slate-700/40 rounded w-1/3"></div>
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 bg-slate-700/40 rounded"></div>
-          ))}
-        </div>
+      <div className="flex justify-center p-8">
+        <LoadingSpinner size="md" variant="dark" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-900/30 border border-red-600/40 rounded-lg p-4 backdrop-blur-sm">
-        <p className="text-red-200">Error loading favorite stations: {error.message}</p>
-      </div>
+      <Alert
+        variant="error"
+        message={`Error loading favorite stations: ${error.message}`}
+      />
     );
   }
 
@@ -117,19 +118,20 @@ export function FavoriteStations() {
   const stations = data?.favoriteStations || [];
 
   return (
-    <div className="bg-slate-800/60 backdrop-blur-sm rounded-lg shadow-xl border border-emerald-700/40 p-6">
+    <Card>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <FaStar className="text-2xl text-amber-400" />
           <h2 className="text-xl font-bold text-stone-100">Favorite Stations</h2>
         </div>
-        <button
+        <Button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-amber-700 text-white rounded-md hover:from-orange-500 hover:to-amber-600 transition-all shadow-lg"
+          size="md"
+          className="flex items-center space-x-2"
         >
           <FaPlus />
           <span>Add Station</span>
-        </button>
+        </Button>
       </div>
 
       {showAddForm && (
@@ -137,74 +139,58 @@ export function FavoriteStations() {
           <h3 className="text-lg font-semibold text-stone-100 mb-4">Add New Favorite Station</h3>
           <form onSubmit={handleAddStation} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-stone-300 mb-1">
-                  Station ID *
-                </label>
-                <input
-                  type="text"
-                  value={newStation.stationId}
-                  onChange={(e) => setNewStation(prev => ({ ...prev, stationId: e.target.value }))}
-                  className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-700/40 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
-                  placeholder="e.g., 12345678"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-300 mb-1">
-                  Station Name *
-                </label>
-                <input
-                  type="text"
-                  value={newStation.stationName}
-                  onChange={(e) => setNewStation(prev => ({ ...prev, stationName: e.target.value }))}
-                  className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-700/40 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
-                  placeholder="e.g., Colorado River at Austin"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-300 mb-1">
-                  Latitude
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  value={newStation.lat}
-                  onChange={(e) => setNewStation(prev => ({ ...prev, lat: e.target.value }))}
-                  className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-700/40 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
-                  placeholder="30.123456"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-stone-300 mb-1">
-                  Longitude
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  value={newStation.lon}
-                  onChange={(e) => setNewStation(prev => ({ ...prev, lon: e.target.value }))}
-                  className="w-full px-3 py-2 bg-slate-700/50 border border-emerald-700/40 rounded-md text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600"
-                  placeholder="-97.123456"
-                />
-              </div>
+              <TextInput
+                type="text"
+                label="Station ID *"
+                value={newStation.stationId}
+                onChange={(e) => setNewStation(prev => ({ ...prev, stationId: e.target.value }))}
+                placeholder="e.g., 12345678"
+                required
+                inputSize="md"
+              />
+              <TextInput
+                type="text"
+                label="Station Name *"
+                value={newStation.stationName}
+                onChange={(e) => setNewStation(prev => ({ ...prev, stationName: e.target.value }))}
+                placeholder="e.g., Colorado River at Austin"
+                required
+                inputSize="md"
+              />
+              <TextInput
+                type="number"
+                label="Latitude"
+                value={newStation.lat}
+                onChange={(e) => setNewStation(prev => ({ ...prev, lat: e.target.value }))}
+                placeholder="30.123456"
+                inputSize="md"
+              />
+              <TextInput
+                type="number"
+                label="Longitude"
+                value={newStation.lon}
+                onChange={(e) => setNewStation(prev => ({ ...prev, lon: e.target.value }))}
+                placeholder="-97.123456"
+                inputSize="md"
+              />
             </div>
             <div className="flex justify-end space-x-3">
-              <button
+              <Button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="px-4 py-2 text-stone-200 bg-slate-600 rounded-md hover:bg-slate-700 transition-colors shadow-lg"
+                variant="secondary"
+                size="md"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                disabled={addingStation}
-                className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors shadow-lg disabled:opacity-50"
+                loading={addingStation}
+                variant="success"
+                size="md"
               >
-                {addingStation ? 'Adding...' : 'Add Station'}
-              </button>
+                Add Station
+              </Button>
             </div>
           </form>
         </div>
@@ -260,6 +246,6 @@ export function FavoriteStations() {
           ))}
         </div>
       )}
-    </div>
+    </Card>
   );
 }
