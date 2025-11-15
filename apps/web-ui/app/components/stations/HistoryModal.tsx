@@ -1,6 +1,29 @@
 import { useMemo } from 'react';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { Alert } from '../ui/Alert';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartOptions,
+} from 'chart.js';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface HistoryValue {
   timestamp: string;
@@ -33,15 +56,29 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
   error,
   data,
 }) => {
-  const formatTimestamp = (timestamp: string) => {
+  const formatDate = (timestamp: string) => {
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) {
+      return 'Invalid';
+    }
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const formatDateTime = (timestamp: string) => {
     const date = new Date(timestamp);
     if (isNaN(date.getTime())) {
       return 'Invalid Date';
     }
-    return date.toLocaleDateString();
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   };
 
-  const historicalRecords = useMemo(() => {
+  const chartData = useMemo(() => {
     if (!data?.station?.values) return [];
 
     const flowData = data.station.values.flow || [];
@@ -49,38 +86,212 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
 
     const dataMap = new Map<
       string,
-      { flowValue: string | null; gageValue: string | null }
+      { flow: number | null; gage: number | null; date: string; dateTime: string }
     >();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     flowData.forEach((item: any) => {
       if (!dataMap.has(item.timestamp)) {
-        dataMap.set(item.timestamp, { flowValue: null, gageValue: null });
+        dataMap.set(item.timestamp, {
+          flow: null,
+          gage: null,
+          date: formatDate(item.timestamp),
+          dateTime: formatDateTime(item.timestamp),
+        });
       }
-      dataMap.get(item.timestamp)!.flowValue = item.value;
+      const value = parseFloat(item.value);
+      dataMap.get(item.timestamp)!.flow = isNaN(value) ? null : value;
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     gageData.forEach((item: any) => {
       if (!dataMap.has(item.timestamp)) {
-        dataMap.set(item.timestamp, { flowValue: null, gageValue: null });
+        dataMap.set(item.timestamp, {
+          flow: null,
+          gage: null,
+          date: formatDate(item.timestamp),
+          dateTime: formatDateTime(item.timestamp),
+        });
       }
-      dataMap.get(item.timestamp)!.gageValue = item.value;
+      const value = parseFloat(item.value);
+      dataMap.get(item.timestamp)!.gage = isNaN(value) ? null : value;
     });
 
     return Array.from(dataMap.entries())
-      .map(([timestamp, values]) => ({ timestamp, ...values }))
+      .map(([timestamp, values]) => ({
+        timestamp,
+        ...values,
+      }))
       .sort(
         (a, b) =>
           new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
   }, [data]);
 
+  const hasFlowData = chartData.some((d) => d.flow !== null);
+  const hasGageData = chartData.some((d) => d.gage !== null);
+
+  // Chart.js configuration for Flow Rate
+  const flowChartData = {
+    labels: chartData.map((d) => d.date),
+    datasets: [
+      {
+        label: 'Flow Rate (cfs)',
+        data: chartData.map((d) => d.flow),
+        borderColor: '#fbbf24',
+        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#fbbf24',
+        tension: 0.1,
+        spanGaps: true,
+      },
+    ],
+  };
+
+  const flowChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        display: true,
+        labels: {
+          color: '#e5e7eb',
+        },
+      },
+      tooltip: {
+        backgroundColor: '#1e293b',
+        titleColor: '#e5e7eb',
+        bodyColor: '#e5e7eb',
+        borderColor: '#10b981',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+        callbacks: {
+          title: (context) => {
+            const index = context[0].dataIndex;
+            return chartData[index]?.dateTime || '';
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          color: '#334155',
+        },
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 12,
+          },
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grace: '10%',
+        grid: {
+          color: '#334155',
+        },
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 12,
+          },
+        },
+      },
+    },
+  };
+
+  // Chart.js configuration for Gage Height
+  const gageChartData = {
+    labels: chartData.map((d) => d.date),
+    datasets: [
+      {
+        label: 'Gage Height (ft)',
+        data: chartData.map((d) => d.gage),
+        borderColor: '#06b6d4',
+        backgroundColor: 'rgba(6, 182, 212, 0.1)',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#06b6d4',
+        pointBorderColor: '#06b6d4',
+        tension: 0.1,
+        spanGaps: true,
+      },
+    ],
+  };
+
+  const gageChartOptions: ChartOptions<'line'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        display: true,
+        labels: {
+          color: '#e5e7eb',
+        },
+      },
+      tooltip: {
+        backgroundColor: '#1e293b',
+        titleColor: '#e5e7eb',
+        bodyColor: '#e5e7eb',
+        borderColor: '#10b981',
+        borderWidth: 1,
+        padding: 12,
+        displayColors: true,
+        callbacks: {
+          title: (context) => {
+            const index = context[0].dataIndex;
+            return chartData[index]?.dateTime || '';
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          color: '#334155',
+        },
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 12,
+          },
+        },
+      },
+      y: {
+        beginAtZero: true,
+        grace: '10%',
+        grid: {
+          color: '#334155',
+        },
+        ticks: {
+          color: '#94a3b8',
+          font: {
+            size: 12,
+          },
+        },
+      },
+    },
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
-      <div className="relative w-full max-w-lg rounded-lg bg-slate-800 border border-emerald-700/40 p-6 shadow-2xl">
+      <div className="relative w-full max-w-4xl rounded-lg bg-slate-800 border border-emerald-700/40 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute right-4 top-4 text-stone-400 hover:text-stone-100 text-2xl font-bold"
@@ -105,41 +316,37 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
             <h2 className="text-2xl font-bold text-stone-100 mb-4">
               {data.station.name} History
             </h2>
-            <p className="text-sm text-stone-400 mb-4">
+            <p className="text-sm text-stone-400 mb-2">
               USGS ID: {data.station.usgsId}
             </p>
-            {historicalRecords.length > 0 ? (
-              <div className="max-h-80 overflow-y-auto pr-2">
-                <table className="min-w-full divide-y divide-emerald-700/40">
-                  <thead className="bg-slate-900/50 sticky top-0">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">
-                        Flow (cfs)
-                      </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-stone-300 uppercase tracking-wider">
-                        Height (ft)
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-emerald-700/30">
-                    {historicalRecords.map((record, index: number) => (
-                      <tr key={index}>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-stone-200">
-                          {formatTimestamp(record.timestamp)}
-                        </td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-amber-400 font-semibold">
-                          {record.flowValue !== null ? record.flowValue : 'N/A'}
-                        </td>
-                        <td className="px-3 py-2 whitespace-nowrap text-sm text-amber-400 font-semibold">
-                          {record.gageValue !== null ? record.gageValue : 'N/A'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <p className="text-xs text-stone-500 mb-6">
+              {chartData.length} data points
+            </p>
+            {chartData.length > 0 ? (
+              <div className="space-y-8">
+                {/* Flow Rate Chart */}
+                {hasFlowData && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-stone-100 mb-3">
+                      Flow Rate (cfs)
+                    </h3>
+                    <div style={{ height: '250px' }}>
+                      <Line data={flowChartData} options={flowChartOptions} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Gage Height Chart */}
+                {hasGageData && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-stone-100 mb-3">
+                      Gage Height (ft)
+                    </h3>
+                    <div style={{ height: '250px' }}>
+                      <Line data={gageChartData} options={gageChartOptions} />
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-center text-stone-400 p-4">
