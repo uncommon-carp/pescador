@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { useQuery, useLazyQuery, ApolloProvider } from '@apollo/client';
+import { useQuery, useLazyQuery, ApolloProvider, gql } from '@apollo/client';
 import apolloClient from '../../lib/apolloClient';
 import { Header } from '../components/ui/Header';
 import { useAuth } from '../../context/AuthContext';
@@ -14,6 +14,7 @@ import { TextInput } from '../components/ui/TextInput';
 import { Card } from '../components/ui/Card';
 import { Alert } from '../components/ui/Alert';
 import { WeatherCard } from '../components/weather/WeatherCard';
+import { HistoryModal } from '../components/stations/HistoryModal';
 import {
   GET_STATION_QUERY,
   GET_WEATHER_QUERY,
@@ -48,8 +49,33 @@ interface FavoriteStation {
   dateAdded: string;
 }
 
+const GET_STATION_HISTORY_QUERY = gql`
+  query GetStationHistory($id: String!, $range: Int!) {
+    station(id: $id, range: $range) {
+      usgsId
+      name
+      values {
+        flow {
+          value
+          timestamp
+        }
+        gage {
+          value
+          timestamp
+        }
+      }
+    }
+  }
+`;
+
 // Separate component for each favorite station card
-function FavoriteStationCard({ favorite }: { favorite: FavoriteStation }) {
+function FavoriteStationCard({
+  favorite,
+  onStationClick
+}: {
+  favorite: FavoriteStation;
+  onStationClick?: (usgsId: string) => void;
+}) {
   const { data, loading, error } = useQuery(GET_STATION_QUERY, {
     variables: { id: favorite.stationId, range: 1 },
     skip: !favorite.stationId,
@@ -66,8 +92,17 @@ function FavoriteStationCard({ favorite }: { favorite: FavoriteStation }) {
       ? station.values.gage[station.values.gage.length - 1].value
       : null;
 
+  const handleClick = () => {
+    if (onStationClick) {
+      onStationClick(favorite.stationId);
+    }
+  };
+
   return (
-    <div className="rounded-lg border border-emerald-700/40 bg-slate-800/60 backdrop-blur-sm p-6 shadow-lg hover:shadow-xl hover:border-orange-600/60 hover:bg-slate-800/80 transition-all duration-200">
+    <div
+      className="rounded-lg border border-emerald-700/40 bg-slate-800/60 backdrop-blur-sm p-6 shadow-lg hover:shadow-xl hover:border-orange-600/60 hover:bg-slate-800/80 transition-all duration-200 cursor-pointer"
+      onClick={handleClick}
+    >
       <h3 className="font-bold text-lg text-stone-100 mb-2">
         {favorite.stationName}
       </h3>
@@ -104,6 +139,7 @@ function DashboardContent() {
   const [searchZip, setSearchZip] = useState<string>('');
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [favoritedStationIds, setFavoritedStationIds] = useState<Set<string>>(new Set());
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -148,6 +184,20 @@ function DashboardContent() {
     { data: searchData, loading: searchLoading, error: searchError },
   ] = useLazyQuery(SEARCH_STATIONS_QUERY);
 
+  // Station history query
+  const [
+    getStationHistory,
+    { loading: historyLoading, error: historyError, data: historyData },
+  ] = useLazyQuery(GET_STATION_HISTORY_QUERY, {
+    onCompleted: () => {
+      setIsHistoryModalOpen(true);
+    },
+    onError: (queryError) => {
+      console.error('An error occurred during the history query:', queryError);
+      setIsHistoryModalOpen(true);
+    },
+  });
+
   // Get the limit from user preferences, default to 5
   const stationLimit =
     profileData?.userProfile?.dashboardPreferences?.dashboardStationLimit || 5;
@@ -180,6 +230,16 @@ function DashboardContent() {
       }
       return newSet;
     });
+  };
+
+  // Handle station click to show history
+  const handleStationClick = (usgsId: string) => {
+    getStationHistory({ variables: { id: usgsId, range: 7 } });
+  };
+
+  // Close history modal
+  const closeHistoryModal = () => {
+    setIsHistoryModalOpen(false);
   };
 
   // Combine search results
@@ -255,7 +315,11 @@ function DashboardContent() {
             ) : favoriteStations.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {favoriteStations.map((favorite) => (
-                  <FavoriteStationCard key={favorite.stationId} favorite={favorite} />
+                  <FavoriteStationCard
+                    key={favorite.stationId}
+                    favorite={favorite}
+                    onStationClick={handleStationClick}
+                  />
                 ))}
               </div>
             ) : (
@@ -341,6 +405,15 @@ function DashboardContent() {
             )}
           </div>
         </div>
+
+        {/* Station History Modal */}
+        <HistoryModal
+          isOpen={isHistoryModalOpen}
+          onClose={closeHistoryModal}
+          loading={historyLoading}
+          error={historyError}
+          data={historyData}
+        />
       </main>
     </>
   );
