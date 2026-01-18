@@ -16,22 +16,37 @@ import { HistoryModal } from './components/stations/HistoryModal';
 import { WeatherCard } from './components/weather/WeatherCard';
 import { SearchForm } from './components/search/SearchForm';
 import { LocationOptionsCard } from './components/search/LocationOptionsCard';
+import dynamic from 'next/dynamic';
+
+// Load MapView only on client-side (Leaflet requires window object)
+const MapView = dynamic(() => import('./components/map/MapView').then((mod) => mod.MapView), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[400px] sm:h-[500px] md:h-[600px] rounded-lg border border-emerald-700/40 bg-slate-900/80 flex items-center justify-center">
+      <div className="text-stone-300">Loading map...</div>
+    </div>
+  ),
+});
 
 const GET_DATA_QUERY = gql`
-  query GetStationAndWeather($userInput: String!) {
-    fuzzySearch(userInput: $userInput) {
+  query GetStationAndWeather($userInput: String!, $radius: Int) {
+    fuzzySearch(userInput: $userInput, radius: $radius) {
       ... on BulkStation {
         lakes {
           usgsId
           name
           flowRate
           gageHt
+          lat
+          lon
         }
         streams {
           usgsId
           name
           flowRate
           gageHt
+          lat
+          lon
         }
       }
       ... on MultiLocationResponse {
@@ -91,9 +106,15 @@ function HomePageContent() {
   const [noResultsFound, setNoResultsFound] = useState<boolean>(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState<boolean>(false);
   const [favoritedStations, setFavoritedStations] = useState<Set<string>>(new Set());
+  const [searchRadius, setSearchRadius] = useState<number>(10);
   const [getData, { loading, error, data }] = useLazyQuery(GET_DATA_QUERY, {
     onError: (queryError) => {
       console.error('An error occurred during the bulk query:', queryError);
+      console.error('Error details:', {
+        message: queryError.message,
+        graphQLErrors: queryError.graphQLErrors,
+        networkError: queryError.networkError,
+      });
     },
     onCompleted: (responseData) => {
       // Check if we got multiple location options
@@ -157,9 +178,11 @@ function HomePageContent() {
 
   useEffect(() => {
     if (submittedSearch) {
-      getData({ variables: { userInput: submittedSearch } });
+      const variables = { userInput: submittedSearch, radius: searchRadius };
+      console.log('Sending GraphQL query with variables:', variables);
+      getData({ variables });
     }
-  }, [submittedSearch, getData]);
+  }, [submittedSearch, searchRadius, getData]);
 
   const allStations = useMemo(() => {
     if (!data?.fuzzySearch || data.fuzzySearch.__typename !== 'BulkStation') return [];
@@ -187,7 +210,8 @@ function HomePageContent() {
     setSearchInput(searchString);
     setLocationOptions(null);
     // Refetch both fuzzySearch and weather with the specific location
-    getData({ variables: { userInput: searchString } });
+    console.log('Location selected, fetching with radius:', searchRadius);
+    getData({ variables: { userInput: searchString, radius: searchRadius } });
   };
 
   const handleStationClick = (usgsId: string) => {
@@ -203,7 +227,7 @@ function HomePageContent() {
     <>
       <Header />
       <main className="flex min-h-screen w-full flex-col items-center bg-gradient-to-br from-slate-900 via-emerald-900 to-blue-900 px-4 py-8 font-sans sm:p-8 animate-gradient-x">
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-5xl">
           <header className="text-center pt-8 pb-6 sm:pt-16 sm:pb-8">
             <h1 className="text-3xl font-bold text-white drop-shadow-lg sm:text-4xl md:text-5xl bg-gradient-to-r from-white to-amber-100 bg-clip-text text-transparent animate-fade-in">
               Make the Right Call
@@ -218,6 +242,8 @@ function HomePageContent() {
             onSearchChange={setSearchInput}
             onSubmit={handleSubmit}
             loading={loading}
+            radius={searchRadius}
+            onRadiusChange={setSearchRadius}
           />
 
           <div className="mt-6 min-h-[50px]">
@@ -252,20 +278,15 @@ function HomePageContent() {
 
                 {allStations.length > 0 && (
                   <div className="text-left">
-                    <h2 className="text-2xl font-bold text-center text-stone-100">
+                    <h2 className="text-2xl font-bold text-center text-stone-100 mb-4">
                       Nearby Stations
                     </h2>
-                    <ul className="mt-4 space-y-3">
-                      {allStations.map((station: Station) => (
-                        <StationListItem
-                          key={`${station.name}-${station.usgsId}`}
-                          station={station}
-                          isFavorited={favoritedStations.has(station.usgsId)}
-                          onFavoriteToggle={handleFavoriteToggle}
-                          onStationClick={handleStationClick}
-                        />
-                      ))}
-                    </ul>
+                    <MapView
+                      stations={allStations}
+                      onStationClick={handleStationClick}
+                      onFavoriteToggle={handleFavoriteToggle}
+                      favoritedStations={favoritedStations}
+                    />
                   </div>
                 )}
               </div>

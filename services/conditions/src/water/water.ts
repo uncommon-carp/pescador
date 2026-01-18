@@ -19,6 +19,7 @@ interface GetStationByIdInput {
 
 interface GetStationsFuzzyInput {
   userInput: string;
+  radius?: number;
 }
 
 const url = 'http://waterservices.usgs.gov/nwis/iv';
@@ -101,7 +102,8 @@ export const getStationFuzzy = async (event: any): Promise<BulkStation | MultiLo
   // if single result
   if (result.type === 'loc') {
     console.log('Single result');
-    const { west, north, south, east } = getBoundingBox(result.lat, result.lng);
+    const radius = input.radius || 10; // Default to 10 miles if not provided
+    const { west, north, south, east } = getBoundingBox(result.lat, result.lng, radius);
 
     const params = {
       format: 'json',

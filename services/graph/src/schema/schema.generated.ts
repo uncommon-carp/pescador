@@ -9,7 +9,7 @@ type Query {
   bulkStation(zip: String!): BulkStation
   weather(zip: String!): CurrentWeather
   favoriteStations(userSub: String!): [FavoriteStation!]!
-  fuzzySearch(userInput: String!): FuzzySearchResult
+  fuzzySearch(userInput: String!, radius: Int): FuzzySearchResult
 }
 
 type Mutation {

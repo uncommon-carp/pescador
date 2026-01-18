@@ -46,7 +46,7 @@ export const getStationByIdResolver = async (
 
 export const getStationFuzzyResolver = async (
   _: unknown,
-  input: { userInput: string },
+  input: { userInput: string; radius?: number },
 ) => {
   const resp = await invokeServiceFunction<GetStationFuzzyFunction>(
     'pescador-conditions',

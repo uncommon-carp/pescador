@@ -158,6 +158,7 @@ export type QueryFavoriteStationsArgs = {
 
 
 export type QueryFuzzySearchArgs = {
+  radius?: InputMaybe<Scalars['Int']['input']>;
   userInput: Scalars['String']['input'];
 };
 

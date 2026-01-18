@@ -24,6 +24,6 @@ export interface GetStationByIdFunction {
 export interface GetStationFuzzyFunction {
   serviceName: 'pescador-conditions';
   functionName: 'getStationFuzzy';
-  input: { userInput: string };
+  input: { userInput: string; radius?: number };
   output: FuzzySearchResult;
 }
