@@ -290,7 +290,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-70 p-4">
       <div className="relative w-full max-w-4xl rounded-lg bg-slate-800 border border-emerald-700/40 p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}

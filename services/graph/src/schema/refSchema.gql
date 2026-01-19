@@ -87,12 +87,21 @@ type DataFrame {
   value: Float
 }
 
+type WeatherCondition {
+  main: String!
+  description: String!
+  icon: String!
+}
+
 type CurrentWeather {
   temp: Float!
   wind: WindData
   pressure: Float!
   humidity: Float!
   clouds: String!
+  sunrise: Int!
+  sunset: Int!
+  condition: WeatherCondition!
 }
 
 type WindData {

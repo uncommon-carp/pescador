@@ -39,8 +39,11 @@ export type CreateUserProfileInput = {
 
 export type CurrentWeather = {
   clouds: Scalars['String']['output'];
+  condition: WeatherCondition;
   humidity: Scalars['Float']['output'];
   pressure: Scalars['Float']['output'];
+  sunrise: Scalars['Int']['output'];
+  sunset: Scalars['Int']['output'];
   temp: Scalars['Float']['output'];
   wind?: Maybe<WindData>;
 };
@@ -240,6 +243,12 @@ export type UserProfile = {
   zipCode?: Maybe<Scalars['String']['output']>;
 };
 
+export type WeatherCondition = {
+  description: Scalars['String']['output'];
+  icon: Scalars['String']['output'];
+  main: Scalars['String']['output'];
+};
+
 export type WindData = {
   direction?: Maybe<Scalars['String']['output']>;
   gust?: Maybe<Scalars['Float']['output']>;
@@ -356,6 +365,7 @@ export type ResolversTypes = {
   UpdateUserProfileInput: UpdateUserProfileInput;
   User: ResolverTypeWrapper<User>;
   UserProfile: ResolverTypeWrapper<UserProfile>;
+  WeatherCondition: ResolverTypeWrapper<WeatherCondition>;
   WindData: ResolverTypeWrapper<WindData>;
 };
 
@@ -391,6 +401,7 @@ export type ResolversParentTypes = {
   UpdateUserProfileInput: UpdateUserProfileInput;
   User: User;
   UserProfile: UserProfile;
+  WeatherCondition: WeatherCondition;
   WindData: WindData;
 };
 
@@ -402,8 +413,11 @@ export type BulkStationResolvers<ContextType = any, ParentType extends Resolvers
 
 export type CurrentWeatherResolvers<ContextType = any, ParentType extends ResolversParentTypes['CurrentWeather'] = ResolversParentTypes['CurrentWeather']> = {
   clouds?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  condition?: Resolver<ResolversTypes['WeatherCondition'], ParentType, ContextType>;
   humidity?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   pressure?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  sunrise?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sunset?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   temp?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   wind?: Resolver<Maybe<ResolversTypes['WindData']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -550,6 +564,13 @@ export type UserProfileResolvers<ContextType = any, ParentType extends Resolvers
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type WeatherConditionResolvers<ContextType = any, ParentType extends ResolversParentTypes['WeatherCondition'] = ResolversParentTypes['WeatherCondition']> = {
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  icon?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  main?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type WindDataResolvers<ContextType = any, ParentType extends ResolversParentTypes['WindData'] = ResolversParentTypes['WindData']> = {
   direction?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gust?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -579,6 +600,7 @@ export type Resolvers<ContextType = any> = {
   StationWithRange?: StationWithRangeResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserProfile?: UserProfileResolvers<ContextType>;
+  WeatherCondition?: WeatherConditionResolvers<ContextType>;
   WindData?: WindDataResolvers<ContextType>;
 };
 
