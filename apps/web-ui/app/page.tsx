@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { gql, useLazyQuery, ApolloProvider } from '@apollo/client';
 import apolloClient from '../lib/apolloClient';
-import { convertMmHgToInHg } from '@/lib/mmhgToInHg';
 import { Header } from './components/ui/Header';
 import { useAuth } from '../context/AuthContext';
 import { StationListItem, Station } from './components/ui/StationListItem';
@@ -64,8 +63,18 @@ const GET_DATA_QUERY = gql`
       wind {
         speed
         direction
+        gust
       }
       pressure
+      humidity
+      clouds
+      sunrise
+      sunset
+      condition {
+        main
+        description
+        icon
+      }
     }
   }
 `;

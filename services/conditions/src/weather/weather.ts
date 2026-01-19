@@ -47,6 +47,13 @@ export async function getWeatherByZip(
       pressure: response.data.current.pressure,
       humidity: response.data.current.humidity,
       clouds,
+      sunrise: response.data.current.sunrise,
+      sunset: response.data.current.sunset,
+      condition: {
+        main: response.data.current.weather[0].main,
+        description: response.data.current.weather[0].description,
+        icon: response.data.current.weather[0].icon,
+      },
     };
     return weatherData;
   } catch (error: unknown) {

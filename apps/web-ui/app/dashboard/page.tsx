@@ -5,7 +5,6 @@ import { useQuery, useLazyQuery, ApolloProvider, gql } from '@apollo/client';
 import apolloClient from '../../lib/apolloClient';
 import { Header } from '../components/ui/Header';
 import { useAuth } from '../../context/AuthContext';
-import { convertMmHgToInHg } from '@/lib/mmhgToInHg';
 import { useRouter } from 'next/navigation';
 import { StationListItem, Station } from '../components/ui/StationListItem';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
@@ -270,9 +269,6 @@ function DashboardContent() {
 
           {/* Current Weather Section */}
           <div className="mt-8">
-            <h2 className="text-2xl font-bold text-stone-100 mb-4">
-              Current Weather
-            </h2>
             {weatherLoading ? (
               <Card>
                 <div className="flex justify-center items-center p-2">
@@ -280,7 +276,7 @@ function DashboardContent() {
                 </div>
               </Card>
             ) : weatherData?.weather ? (
-              <WeatherCard weather={weatherData.weather} showHumidity />
+              <WeatherCard weather={weatherData.weather} />
             ) : (
               <Card className="text-center text-stone-400">
                 {profileData?.userProfile?.zipCode ? (

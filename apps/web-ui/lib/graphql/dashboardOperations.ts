@@ -33,6 +33,13 @@ export const GET_WEATHER_QUERY = gql`
       pressure
       humidity
       clouds
+      sunrise
+      sunset
+      condition {
+        main
+        description
+        icon
+      }
     }
   }
 `;
