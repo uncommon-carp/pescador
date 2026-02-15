@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { createServerClient } from "@/lib/supabase/server"
 import { PageHeader } from "@/components/shared/PageHeader"
 import { EmptyState } from "@/components/shared/EmptyState"
-import { getConnectAccount } from "@/lib/stripe/connect"
+import { getConnectAccount, syncConnectAccount } from "@/lib/stripe/connect"
 import { ConnectButton } from "./_components/ConnectButton"
 import { ConnectStatusCard } from "./_components/ConnectStatusCard"
 import { createConnectAccount } from "@/actions/connect"
@@ -39,7 +39,12 @@ export default async function PaymentsPage({
   if (!member) notFound()
 
   const canManage = member.role === "owner" || member.role === "admin"
-  const connectAccount = await getConnectAccount(org_id, supabase)
+  let connectAccount = await getConnectAccount(org_id, supabase)
+
+  // Sync from Stripe if the account exists but onboarding isn't marked complete
+  if (connectAccount && !connectAccount.charges_enabled) {
+    connectAccount = (await syncConnectAccount(org_id, supabase)) ?? connectAccount
+  }
 
   let status: ConnectStatus = "not_connected"
   if (connectAccount) {
