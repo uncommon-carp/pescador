@@ -379,25 +379,27 @@ Two revenue streams:
 
 ## Roadmap Phases
 
-### Phase 0: Kit Onboarding & Foundation
-Kit setup and domain schema foundation. No features yet — just making the kit "Pescador" and laying the data layer.
+> **Progress key:** ✅ Complete | 🚧 In Progress | ⬚ Not Started
 
-0. **Kit onboarding** — Rename to Pescador, branding/theme, Supabase project setup, env vars, Stripe keys (platform account + Connect enabled), Resend domain verification
-1. **Domain schema migration** — All domain tables in one migration: `trips`, `bookings`, `guide_profiles`, `guide_availability`, `stripe_connect_accounts`, `cancellation_policies`. RLS policies, indexes, triggers, following kit patterns. This is the foundation everything else builds on.
+### Phase 0: Kit Onboarding & Foundation ✅
+Kit setup and domain schema foundation.
 
-### MVP
-2. Stripe Connect onboarding
-3. Trip types CRUD
-4. Guide profiles & availability
-5. Bookings (core table + lifecycle)
-6. Public booking flow — client self-service (unauthenticated)
-7. Guide-created booking flow — dashboard booking creation + payment link delivery
-8. Booking lifecycle emails (confirmation, reminder, pre-trip, post-trip, payment link)
-9. Conditions integration (weather/water API)
-10. Dashboard views (schedule, upcoming bookings, company stats)
-11. Cancellation policy templates (per-company configurable)
-12. Analytics (MVP-light: revenue, booking counts, utilization)
-13. iCal feed export per guide (late MVP)
+0. ✅ **Kit onboarding** — Rename to Pescador, branding/theme, Supabase project setup, env vars, Stripe keys (platform account + Connect enabled), Resend domain verification
+1. ✅ **Domain schema migration** — All 6 domain tables in one migration (`20260213195317_domain_tables.sql`): `trips`, `bookings`, `booking_payments`, `guide_profiles`, `guide_availability`, `stripe_connect_accounts`. Cancellation policy columns on `organizations`. RLS policies, indexes, triggers.
+
+### MVP 🚧
+2. ✅ **Stripe Connect onboarding** — Express account creation, onboarding/refresh/dashboard links, `account.updated` webhook, payments page UI with status card + connect button, sync helper with skip-if-unchanged optimization. Separate Connect webhook endpoint at `/api/webhooks/stripe/connect/`.
+3. ⬚ Trip types CRUD
+4. ⬚ Guide profiles & availability
+5. ⬚ Bookings (core table + lifecycle)
+6. ⬚ Public booking flow — client self-service (unauthenticated)
+7. ⬚ Guide-created booking flow — dashboard booking creation + payment link delivery
+8. ⬚ Booking lifecycle emails (confirmation, reminder, pre-trip, post-trip, payment link)
+9. ⬚ Conditions integration (weather/water API)
+10. ⬚ Dashboard views (schedule, upcoming bookings, company stats)
+11. ⬚ Cancellation policy templates (per-company configurable)
+12. ⬚ Analytics (MVP-light: revenue, booking counts, utilization)
+13. ⬚ iCal feed export per guide (late MVP)
 
 ### Immediate Post-MVP
 - Digital waiver / liability forms (e-signature + Supabase Storage)

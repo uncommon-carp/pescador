@@ -6,7 +6,7 @@ Pescador has **two distinct Stripe relationships**:
 
 1. **SaaS billing** (already built in the kit) — Guide companies pay Pescador a monthly subscription fee. This uses standard Stripe Checkout + Customer Portal. No changes needed.
 
-2. **Stripe Connect** (to be built) — Clients pay guide companies for bookings *through* Pescador. Pescador facilitates the payment and takes a transaction fee. This is the core of the platform.
+2. **Stripe Connect** (onboarding complete, payment flows to be built) — Clients pay guide companies for bookings *through* Pescador. Pescador facilitates the payment and takes a transaction fee. This is the core of the platform.
 
 These are separate concerns. A guide company is both a **Stripe Customer** (they pay us) and a **Stripe Connected Account** (clients pay them through us).
 
@@ -333,12 +333,14 @@ switch (event.type) {
 - **Payment events on destination charges** are sent to the platform's webhook endpoint (not the connected account's), which is what we want.
 - We may want a **separate webhook endpoint** for Connect events (`/api/webhooks/stripe-connect/`) to keep the handler clean. Both endpoints verify with different webhook secrets (configured separately in Stripe Dashboard). This is the cleaner approach.
 
-**Recommendation: Separate endpoints.**
+**Decision: Separate endpoints.** (Implemented)
 
 ```
-/api/webhooks/stripe/          → SaaS subscription events (existing)
-/api/webhooks/stripe-connect/  → Connect payment + account events (new)
+/api/webhooks/stripe/          → SaaS subscription events (existing, kit)
+/api/webhooks/stripe/connect/  → Connect payment + account events (implemented)
 ```
+
+Note: The Connect endpoint is nested under `/api/webhooks/stripe/connect/` rather than `/api/webhooks/stripe-connect/` as originally proposed. Uses `STRIPE_CONNECT_WEBHOOK_SECRET` env var.
 
 ---
 
@@ -477,16 +479,17 @@ Note: `payment_status` is separate from booking `status`. A booking can be `conf
 
 ## Implementation Order
 
-This maps to the MVP roadmap item #1 (Stripe Connect onboarding) and feeds into items #4-5 (Bookings, Public booking flow):
+This maps to MVP roadmap item #2 (Stripe Connect onboarding) and feeds into items #5-7 (Bookings, Public booking flow, Guide-created flow):
 
-1. **Database migration** — `stripe_connect_accounts` table + RLS
-2. **Server actions** — `createConnectAccount`, `createConnectAccountLink`, `getConnectAccountStatus`
-3. **Connect onboarding UI** — Dashboard page with status + onboarding button
-4. **Connect webhook endpoint** — Handle `account.updated` events
-5. **Booking checkout action** — `createBookingCheckout` (depends on bookings table existing)
-6. **Connect payment webhook** — Handle `checkout.session.completed` for bookings
-7. **Refund action** — `refundBooking`
-8. **Balance payment link** — `createBalancePaymentLink`
-9. **Express dashboard link** — So guides can see their payouts in Stripe
+> **Progress key:** ✅ Complete | ⬚ Not Started
 
-Steps 1-4 can be built as soon as we start. Steps 5-6 depend on the trips and bookings tables existing. Steps 7-9 round out the payment lifecycle.
+1. ✅ **Database migration** — `stripe_connect_accounts` table + RLS (part of `20260213195317_domain_tables.sql` with all domain tables)
+2. ✅ **Server actions** — `createConnectAccount`, `createConnectAccountLink`, `createConnectDashboardLink` in `actions/connect.ts`. Helpers in `lib/stripe/connect.ts` (`getConnectAccount`, `isConnectReady`, `syncConnectAccount`).
+3. ✅ **Connect onboarding UI** — Payments page at `/organizations/[org_id]/payments/` with `ConnectStatusCard` and `ConnectButton` components
+4. ✅ **Connect webhook endpoint** — Separate endpoint at `/api/webhooks/stripe/connect/` handling `account.updated` events. Uses `STRIPE_CONNECT_WEBHOOK_SECRET`.
+5. ⬚ **Booking checkout action** — `createBookingCheckout` (depends on booking flows being built)
+6. ⬚ **Connect payment webhook** — Handle `checkout.session.completed` for bookings
+7. ⬚ **Refund action** — `refundBooking`
+8. ⬚ **Balance payment link** — `createBalancePaymentLink`
+
+Steps 1-4 are complete. Steps 5-8 will be built alongside the booking flows (MVP items #5-7).
