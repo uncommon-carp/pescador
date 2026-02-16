@@ -15,7 +15,7 @@ scheduling, and client communication. Built on the
 **Phase 0 (Kit Onboarding & Foundation): Complete.**
 Kit cloned, branded as Pescador, all 6 domain tables migrated with RLS.
 
-**MVP: In progress.** Stripe Connect onboarding (item 2) is complete. Items 3-13 are next.
+**MVP: In progress.** Stripe Connect onboarding (item 2) and Trip types CRUD (item 3) are complete. Items 4-13 are next.
 
 ### What's built (on top of kit)
 
@@ -23,10 +23,9 @@ Kit cloned, branded as Pescador, all 6 domain tables migrated with RLS.
 - **Stripe Connect onboarding** — Express account creation, onboarding/refresh links, dashboard link, status sync, `account.updated` webhook handler, payments page UI (status card + connect button)
 - **Marketing site** — Public landing page with hero, features, about, CTA
 - **Connected account fallback** — Graceful handling when Connect account doesn't exist yet
+- **Trip types CRUD** — Card grid with create/edit dialogs, delete confirmation, inline status toggle, dollar→cents validation (separate form/server schemas), role-based access
 
 ### What's NOT built yet
-
-- Trip types CRUD
 - Guide profiles & availability management
 - Booking creation (client self-service or guide-created)
 - Public booking pages (`/book/[slug]/`)
@@ -63,3 +62,4 @@ Stripe (Billing + Connect), Resend + React Email, Tailwind v4, shadcn/ui, Vercel
 - Database migrations in `supabase/migrations/`
 - RLS on all tables, scoped to `organization_id` via `is_org_member()` / `get_org_role()`
 - Zod validation on all server action inputs
+- Separate form/server Zod schemas when transforms are involved (form schema validates only, server schema transforms) to avoid double-transform via `standardSchemaResolver`

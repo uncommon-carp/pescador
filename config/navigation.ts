@@ -4,6 +4,7 @@ import {
   Settings,
   CreditCard,
   Landmark,
+  MapPin,
   User,
   Shield,
 } from "lucide-react"
@@ -35,6 +36,11 @@ export const navigation: NavGroup[] = [
   {
     label: "Organization",
     items: [
+      {
+        label: "Trips",
+        href: "/organizations/:org_id/trips",
+        icon: MapPin,
+      },
       {
         label: "Members",
         href: "/organizations/:org_id/members",

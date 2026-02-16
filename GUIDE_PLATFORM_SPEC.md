@@ -389,7 +389,7 @@ Kit setup and domain schema foundation.
 
 ### MVP 🚧
 2. ✅ **Stripe Connect onboarding** — Express account creation, onboarding/refresh/dashboard links, `account.updated` webhook, payments page UI with status card + connect button, sync helper with skip-if-unchanged optimization. Separate Connect webhook endpoint at `/api/webhooks/stripe/connect/`.
-3. ⬚ Trip types CRUD
+3. ✅ **Trip types CRUD** — Card grid UI with create/edit dialogs, delete confirmation, inline status toggle. Zod validation with dollar→cents transform (separate form/server schemas). Server actions with role-based access (owner/admin only). `max-w-4xl` two-column card layout.
 4. ⬚ Guide profiles & availability
 5. ⬚ Bookings (core table + lifecycle)
 6. ⬚ Public booking flow — client self-service (unauthenticated)

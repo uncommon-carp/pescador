@@ -13,6 +13,8 @@ export type SubscriptionStatus =
   | "unpaid"
 export type SubscriptionPlan = "free" | "starter" | "pro"
 export type ConnectStatus = "not_connected" | "onboarding" | "active"
+export type TripDuration = "morning" | "afternoon" | "full_day"
+export type TripStatus = "active" | "inactive"
 
 // Convenience types for UI (derived from database schema)
 export type Organization = {
@@ -51,4 +53,20 @@ export type Invitation = {
   expires_at: string
   accepted_at: string | null
   created_at: string | null
+}
+
+export type Trip = {
+  id: string
+  organization_id: string
+  name: string
+  description: string | null
+  duration: TripDuration
+  price_cents: number
+  deposit_required: boolean
+  deposit_cents: number | null
+  capacity: number
+  status: TripStatus
+  conditions_notes: string | null
+  created_at: string | null
+  updated_at: string | null
 }
