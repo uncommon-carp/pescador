@@ -390,7 +390,7 @@ Kit setup and domain schema foundation.
 ### MVP 🚧
 2. ✅ **Stripe Connect onboarding** — Express account creation, onboarding/refresh/dashboard links, `account.updated` webhook, payments page UI with status card + connect button, sync helper with skip-if-unchanged optimization. Separate Connect webhook endpoint at `/api/webhooks/stripe/connect/`.
 3. ✅ **Trip types CRUD** — Card grid UI with create/edit dialogs, delete confirmation, inline status toggle. Zod validation with dollar→cents transform (separate form/server schemas). Server actions with role-based access (owner/admin only). `max-w-4xl` two-column card layout.
-4. ⬚ Guide profiles & availability
+4. 🚧 **Guide profiles & availability** — Profiles ✅: card grid with avatar photo, bio, specialty/certification badges. Admin creates profile by selecting org member; admin or guide self-edits; admin deletes (email confirmation). Photo upload to `guide-photos` Supabase Storage bucket. Comma-separated input → `TEXT[]` transform (separate form/server schemas). Availability calendar: ⬚.
 5. ⬚ Bookings (core table + lifecycle)
 6. ⬚ Public booking flow — client self-service (unauthenticated)
 7. ⬚ Guide-created booking flow — dashboard booking creation + payment link delivery

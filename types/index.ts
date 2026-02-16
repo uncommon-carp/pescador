@@ -70,3 +70,19 @@ export type Trip = {
   created_at: string | null
   updated_at: string | null
 }
+
+export type GuideProfile = {
+  id: string
+  user_id: string
+  organization_id: string
+  bio: string | null
+  specialties: string[] | null
+  certifications: string[] | null
+  photo_url: string | null
+  created_at: string | null
+  updated_at: string | null
+}
+
+export type GuideProfileWithEmail = GuideProfile & {
+  email: string
+}

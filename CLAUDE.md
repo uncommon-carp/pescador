@@ -15,7 +15,7 @@ scheduling, and client communication. Built on the
 **Phase 0 (Kit Onboarding & Foundation): Complete.**
 Kit cloned, branded as Pescador, all 6 domain tables migrated with RLS.
 
-**MVP: In progress.** Stripe Connect onboarding (item 2) and Trip types CRUD (item 3) are complete. Items 4-13 are next.
+**MVP: In progress.** Stripe Connect onboarding (item 2), Trip types CRUD (item 3), and Guide profiles CRUD (item 4, profiles only — availability calendar is separate) are complete. Items 5-13 are next.
 
 ### What's built (on top of kit)
 
@@ -24,9 +24,10 @@ Kit cloned, branded as Pescador, all 6 domain tables migrated with RLS.
 - **Marketing site** — Public landing page with hero, features, about, CTA
 - **Connected account fallback** — Graceful handling when Connect account doesn't exist yet
 - **Trip types CRUD** — Card grid with create/edit dialogs, delete confirmation, inline status toggle, dollar→cents validation (separate form/server schemas), role-based access
+- **Guide profiles CRUD** — Card grid with photo, bio, specialty/certification badges. Create (admin picks org member), edit (admin or self), delete (admin, email confirmation). Photo upload via Supabase Storage (`guide-photos` bucket). Comma-separated array input for specialties/certifications
 
 ### What's NOT built yet
-- Guide profiles & availability management
+- Guide availability calendar
 - Booking creation (client self-service or guide-created)
 - Public booking pages (`/book/[slug]/`)
 - Booking payment checkout flow
@@ -63,3 +64,4 @@ Stripe (Billing + Connect), Resend + React Email, Tailwind v4, shadcn/ui, Vercel
 - RLS on all tables, scoped to `organization_id` via `is_org_member()` / `get_org_role()`
 - Zod validation on all server action inputs
 - Separate form/server Zod schemas when transforms are involved (form schema validates only, server schema transforms) to avoid double-transform via `standardSchemaResolver`
+- Storage helpers in `lib/storage/` for domain-specific uploads (e.g., `guide-photos.ts`), base avatar helper in `lib/storage.ts`
