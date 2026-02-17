@@ -15,6 +15,8 @@ export type SubscriptionPlan = "free" | "starter" | "pro"
 export type ConnectStatus = "not_connected" | "onboarding" | "active"
 export type TripDuration = "morning" | "afternoon" | "full_day"
 export type TripStatus = "active" | "inactive"
+export type AvailabilityTimeSlot = "morning" | "afternoon" | "full_day"
+export type AvailabilityStatus = "available" | "booked" | "blocked"
 
 // Convenience types for UI (derived from database schema)
 export type Organization = {
@@ -85,4 +87,15 @@ export type GuideProfile = {
 
 export type GuideProfileWithEmail = GuideProfile & {
   email: string
+}
+
+export type GuideAvailability = {
+  id: string
+  guide_profile_id: string
+  organization_id: string
+  date: string
+  time_slot: AvailabilityTimeSlot
+  status: AvailabilityStatus
+  booking_id: string | null
+  created_at: string | null
 }

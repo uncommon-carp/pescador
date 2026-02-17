@@ -15,7 +15,7 @@ scheduling, and client communication. Built on the
 **Phase 0 (Kit Onboarding & Foundation): Complete.**
 Kit cloned, branded as Pescador, all 6 domain tables migrated with RLS.
 
-**MVP: In progress.** Stripe Connect onboarding (item 2), Trip types CRUD (item 3), and Guide profiles CRUD (item 4, profiles only — availability calendar is separate) are complete. Items 5-13 are next.
+**MVP: In progress.** Stripe Connect onboarding (item 2), Trip types CRUD (item 3), and Guide profiles & availability (item 4) are complete. Items 5-13 are next.
 
 ### What's built (on top of kit)
 
@@ -25,9 +25,9 @@ Kit cloned, branded as Pescador, all 6 domain tables migrated with RLS.
 - **Connected account fallback** — Graceful handling when Connect account doesn't exist yet
 - **Trip types CRUD** — Card grid with create/edit dialogs, delete confirmation, inline status toggle, dollar→cents validation (separate form/server schemas), role-based access
 - **Guide profiles CRUD** — Card grid with photo, bio, specialty/certification badges. Create (admin picks org member), edit (admin or self), delete (admin, email confirmation). Photo upload via Supabase Storage (`guide-photos` bucket). Comma-separated array input for specialties/certifications
+- **Guide availability calendar** — Dedicated page per guide (`/organizations/[org_id]/guides/[guide_id]/availability`). Custom month grid (CSS grid, no dependencies). Day-click dialog to toggle slots (morning/afternoon/full_day × available/blocked). Bulk set dialog (date range, day-of-week filter, time slot selection). Booked slots are read-only. Full_day vs morning/afternoon conflict resolution. Linked from GuideCard
 
 ### What's NOT built yet
-- Guide availability calendar
 - Booking creation (client self-service or guide-created)
 - Public booking pages (`/book/[slug]/`)
 - Booking payment checkout flow

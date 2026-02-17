@@ -1,6 +1,7 @@
 "use client"
 
-import { Pencil, Trash2 } from "lucide-react"
+import Link from "next/link"
+import { CalendarDays, Pencil, Trash2 } from "lucide-react"
 import type { GuideProfileWithEmail, MemberWithEmail } from "@/types"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -70,6 +71,14 @@ export function GuideCard({
 
           {(canManage || canEdit) && (
             <div className="flex gap-2 border-t pt-3">
+              <Button variant="outline" size="sm" asChild>
+                <Link
+                  href={`/organizations/${orgId}/guides/${guide.id}/availability`}
+                >
+                  <CalendarDays className="mr-1.5 size-3.5" />
+                  Calendar
+                </Link>
+              </Button>
               <GuideDialog
                 orgId={orgId}
                 guide={guide}
